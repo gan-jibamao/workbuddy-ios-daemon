@@ -51,7 +51,9 @@ jobs:
         run: |
           set -e
           grep -q 'applyProcessLimits()' src/cmd/server/main.go
+          grep -q 'go logBootMemory()' src/cmd/server/main.go
           grep -q 'rss=%dMB' src/cmd/server/main.go
+          grep -q 'fp=%dMB' src/cmd/server/main.go
           test -f src/cmd/server/iosmem_darwin.go
           test -f src/cmd/server/iosmem_other.go
           echo "wiring ok"
