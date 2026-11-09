@@ -17,7 +17,7 @@
     <!-- ThrottleInterval 只管「启动后 10 秒内就退出」的重启间隔。孤儿进程死掉时
          launchd 会立刻重拉，这个值就是客户端看到的那段 ECONNREFUSED 空窗长度。
          10 秒太长（一次重启 = 一次「无法连接服务器」），压到 2 秒。 -->
-    <key>ThrottleInterval</key><integer>2</integer>
+    <key>ThrottleInterval</key><integer>1</integer>
 
     <!-- EnablePressuredExit 默认 true（launchd.plist(5)）：空闲 + 系统内存压力下
          内核可以直接回收该进程。这条路径不给信号、不写 panic、也不产生
