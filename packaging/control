@@ -1,7 +1,7 @@
 Package: com.gan.wb2api
 Name: wb2api daemon
 Version: @VERSION@
-Architecture: iphoneos-arm64
+Architecture: iphoneos-arm64e
 Description: WorkBuddy2API 网关服务端（后台常驻，不依赖 App）
 Maintainer: gan-jibamao
 Author: gan-jibamao

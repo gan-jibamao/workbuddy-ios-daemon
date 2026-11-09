@@ -20,7 +20,7 @@ App 里的服务端跑在 App 进程内，iOS 锁屏后几十秒就挂起 ——
 | 步骤 | 做法 |
 |---|---|
 | 服务端 | 上游 `misakano7545/workbuddy2api-panel` 的 `cmd/server`，钉在含导入修复的合并提交上 |
-| 目标平台 | `GOOS=darwin GOARCH=arm64 CGO_ENABLED=0` |
+| 目标平台 | `GOOS=darwin GOARCH=arm64 CGO_ENABLED=0`（arm64 二进制在 arm64e 设备上直接跑） |
 | **平台改写** | Go 的 `GOOS=ios` **必须开 cgo**（`ios/arm64 requires external (cgo) linking`），而 CI 没有 iOS SDK → 先出 darwin 二进制，再把 Mach-O 里 `LC_BUILD_VERSION.platform` 从 `MACOS(1)` 改成 `IOS(2)`（`LC_VERSION_MIN_MACOSX` 同步改成 `LC_VERSION_MIN_IPHONEOS`） |
 | 签名 | `ldid -S`（ad-hoc）。越狱环境 amfid 被绕过，够用 |
 | 面板资源 | 换成打过补丁的三份 `index.html` / `app.js` / `theme.js` —— 这个 App 的 WKWebView 里 `confirm()` 恒 false、`<a download>` 无效、文件选择器可能没实现，不换面板同样是坏的 |
@@ -28,7 +28,7 @@ App 里的服务端跑在 App 进程内，iOS 锁屏后几十秒就挂起 ——
 ## 安装
 
 ```sh
-# RootHide / rootless（Dopamine、palera1n rootless）
+# RootHide：包架构 iphoneos-arm64e
 # 用 Sileo / Filza 打开 deb 安装即可
 ```
 
