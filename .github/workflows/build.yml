@@ -75,13 +75,19 @@ jobs:
       - name: patch platform (macos -> ios)
         run: python3 scripts/patch_platform.py wb2api
 
-      - name: sign (ldid ad-hoc)
+      - name: sign (ldid ad-hoc + entitlements)
         run: |
           set -e
           # ldid 已内置在 tools/ 里：GitHub Release CDN 对 runner 偶发 504，
           # 每次构建现下载会随机把流水线打挂。
+          # -S<file> = 带 entitlements 签名。iOS 上 platform-application 决定
+          # 该进程是「平台守护进程」还是「mobile 用户沙盒进程」，直接影响 jetsam band。
           chmod +x tools/ldid
-          tools/ldid -S wb2api
+          tools/ldid -Spackaging/wb2api.entitlements wb2api
+          if ! grep -qa 'platform-application' wb2api; then
+            echo "签名里没有 platform-application —— entitlements 没进包" >&2
+            exit 1
+          fi
 
       # 平台对 != 能加载。这一关检查 iOS 真实路径白名单 + 签名页哈希：
       # v2026.11.9-daemon 就是「平台改对了、路径还是 macOS」死在真机 dyld 上。

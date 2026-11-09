@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- 平台应用：iOS 把带这条 entitlement 的进程当系统守护进程对待
+         （不进 mobile 用户沙盒、给 platform 档的 jetsam band）。
+         越狱环境 amfid 被绕过，ad-hoc 签名带 entitlements 也能过。
+         预期收益：① 不再被按 mobile 守护进程的 18MB 限额砍；
+                   ② 解掉 `fork/exec: operation not permitted`，
+                      重启后 [launchd] 那段诊断就能真正拿到上次退出原因。 -->
+    <key>platform-application</key>
+    <true/>
+
+    <!-- 允许加载非平台签名的库/框架：Go 二进制没有这类依赖，
+         但加上可以免掉后续引入原生库时的签名校验麻烦。 -->
+    <key>com.apple.private.skip-library-validation</key>
+    <true/>
+
+    <!-- 不套沙盒配置文件。mobile 用户守护进程默认走 launchd 的受限 profile，
+         越权访问会记 deny（部分 class 直接 SIGKILL，且不留遗言）。 -->
+    <key>com.apple.private.security.no-sandbox</key>
+    <true/>
+</dict>
+</plist>
