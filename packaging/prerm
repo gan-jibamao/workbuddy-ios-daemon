@@ -1,0 +1,51 @@
+#!/bin/sh
+# 卸载 / 升级前把 job 停干净。
+#
+# 为什么要有它：数据目录与 plist 都是 dpkg 管的东西，但**进程不是**。
+# 没有 prerm 时 apt remove 只删文件，已经在跑的进程会带着被删的 inode 一直服务到重启，
+# launchd 内存里那条 job 也还在，KeepAlive 继续拉 —— 用户以为卸了，其实还在跑。
+#
+# 数据目录（config.json / auths / server.log）不在包的文件清单里，这里一律不碰，
+# 重装后账号与配置照旧。
+set -e
+
+if command -v jbroot >/dev/null 2>&1; then JB=$(jbroot); else JB=/var/jb; fi
+DATA="$JB/var/mobile/Library/wb2api"
+LOG="$DATA/install.log"
+
+say() { echo "$@" ; echo "$@" >> "$LOG" 2>/dev/null || true; }
+
+say "===== prerm $1 $(date '+%F %T') ====="
+
+# ps -A | grep 判活：iOS 上没有 pgrep 的机器也稳。
+alive() { ps -A 2>/dev/null | grep -q '[w]b2api'; }
+
+U=$(id -u mobile 2>/dev/null || echo 501)
+for d in "user/$U" "gui/$U" system; do
+    if launchctl bootout "$d/com.gan.wb2api" >>"$LOG" 2>&1; then
+        say "bootout $d/com.gan.wb2api: OK"
+    fi
+done
+launchctl remove com.gan.wb2api >>"$LOG" 2>&1 || true
+
+# 等它自己退：daemon 有 SIGTERM 优雅退出路径，正常 1 秒内结束。
+i=0
+while [ "$i" -lt 3 ]; do
+    alive || break
+    sleep 1
+    i=$((i + 1))
+done
+
+if alive; then
+    say "3 秒后进程仍在 → killall -9 兜底"
+    killall -9 wb2api >>"$LOG" 2>&1 || true
+    sleep 1
+fi
+
+if alive; then
+    say "!! 进程仍未退出，请手动检查： ps -A | grep wb2api"
+else
+    say "服务已停止（数据目录保留：$DATA）"
+fi
+
+exit 0
