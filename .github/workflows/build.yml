@@ -1,0 +1,99 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  UPSTREAM: misakano7545/workbuddy2api-panel
+  UPSTREAM_REF: cffb0389608947cbc196ec79ca73f8b4465b3040   # 含 PR #196 的合并提交
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: checkout upstream
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.UPSTREAM }}
+          ref: ${{ env.UPSTREAM_REF }}
+          path: src
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: src/go.mod
+
+      # 面板资源换成打过补丁的那三份：这个 App 的 WKWebView 里 confirm / 下载 / 文件选择
+      # 都不可用，不换的话 daemon 面板同样是坏的。
+      - name: swap panel assets
+        run: |
+          set -e
+          cp assets/index.html assets/app.js assets/theme.js src/internal/panel/
+          ls -l src/internal/panel/index.html src/internal/panel/app.js
+
+      - name: version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+          else
+            echo "VERSION=$(TZ=Asia/Shanghai date +%Y.%-m.%-d.%-H%M)" >> "$GITHUB_ENV"
+          fi
+
+      - name: build darwin/arm64
+        run: |
+          set -e
+          cd src
+          CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 \
+            go build -trimpath -ldflags="-s -w -X main.appVersion=${VERSION}" -o ../wb2api ./cmd/server
+
+      - name: patch platform (macos -> ios)
+        run: python3 scripts/patch_platform.py wb2api
+
+      - name: sign (ldid ad-hoc)
+        run: |
+          set -e
+          curl -fsSL -o ldid https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_linux_x86_64
+          chmod +x ldid
+          ./ldid -S wb2api
+          ./ldid -h wb2api || true
+
+      - name: package deb
+        run: |
+          set -e
+          ROOT=out
+          rm -rf "$ROOT"
+          mkdir -p "$ROOT/DEBIAN" "$ROOT/var/jb/usr/local/bin" "$ROOT/var/jb/Library/LaunchDaemons"
+          cp wb2api "$ROOT/var/jb/usr/local/bin/wb2api"
+          cp packaging/com.gan.wb2api.plist "$ROOT/var/jb/Library/LaunchDaemons/"
+          cp packaging/postinst "$ROOT/DEBIAN/postinst"
+          sed "s/@VERSION@/${VERSION}/" packaging/control > "$ROOT/DEBIAN/control"
+          chmod 755 "$ROOT/DEBIAN/postinst" "$ROOT/var/jb/usr/local/bin/wb2api"
+          chmod 644 "$ROOT/DEBIAN/control" "$ROOT/var/jb/Library/LaunchDaemons/com.gan.wb2api.plist"
+          DEB="com.gan.wb2api_${VERSION}_iphoneos-arm64.deb"
+          dpkg-deb --build --root-owner-group "$ROOT" "$DEB"
+          sha256sum "$DEB" | tee "$DEB.sha256"
+          echo "DEB=$DEB" >> "$GITHUB_ENV"
+          ls -l "$DEB"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wb2api-deb
+          path: |
+            ${{ env.DEB }}
+            ${{ env.DEB }}.sha256
+
+      - name: release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ env.DEB }}
+            ${{ env.DEB }}.sha256
+          generate_release_notes: true

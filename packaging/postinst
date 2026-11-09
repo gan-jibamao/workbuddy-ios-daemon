@@ -1,0 +1,22 @@
+#!/bin/sh
+set -e
+if command -v jbroot >/dev/null 2>&1; then JB=$(jbroot); else JB=/var/jb; fi
+DATA="$JB/var/mobile/Library/wb2api"
+BIN="$JB/usr/local/bin/wb2api"
+PLIST="$JB/Library/LaunchDaemons/com.gan.wb2api.plist"
+
+mkdir -p "$DATA"
+chown mobile:mobile "$DATA" 2>/dev/null || true
+chmod 755 "$BIN"
+
+# 把占位符换成真实路径（RootHide 的 bootstrap 路径是随机的）
+sed -i "s#@BIN@#$BIN#g; s#@DATA@#$DATA#g" "$PLIST"
+chmod 644 "$PLIST"
+chown root:wheel "$PLIST" 2>/dev/null || true
+
+if command -v launchctl >/dev/null 2>&1; then
+    launchctl bootout system "$PLIST" 2>/dev/null || true
+    launchctl bootstrap system "$PLIST" 2>/dev/null || launchctl load -w "$PLIST" 2>/dev/null || true
+fi
+echo "wb2api: installed. 面板地址 http://127.0.0.1:7863/panel/"
+echo "wb2api: 数据目录 $DATA （config.json / auths / server.log）"
