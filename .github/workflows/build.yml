@@ -26,6 +26,25 @@ jobs:
           ref: ${{ env.UPSTREAM_REF }}
           path: src
 
+      # 本仓库的两个行为补丁（上游不动，只在这里落）：
+      #   0001 监听失败不再 log.Fatal —— 端口被占时退避重试，进程常驻。
+      #        iOS 上 App 内嵌服务与 daemon 抢 7863，旧行为是两边互相 os.Exit。
+      #   0002 根路径 302 到 /panel/ —— 面板 HTML 用同目录相对路径，
+      #        直接挂在 "/" 会让 theme.js/app.js 解析成 /theme.js 而 404。
+      - name: apply patches
+        run: |
+          set -e
+          for p in patches/*.patch; do
+            echo "== apply $p"
+            patch -p1 -d src --batch --forward < "$p"
+          done
+
+      - name: install local tests
+        run: |
+          set -e
+          cp patches/tests/main_listen_retry_test.go src/cmd/server/
+          cp patches/tests/handler_root_redirect_test.go src/internal/server/
+
       - uses: actions/setup-go@v5
         with:
           go-version-file: src/go.mod
