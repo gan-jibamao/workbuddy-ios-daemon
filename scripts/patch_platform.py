@@ -42,6 +42,29 @@ def main(path):
             changed.append('LC_VERSION_MIN_MACOSX -> LC_VERSION_MIN_IPHONEOS')
         off += size
 
+    # 关键：Go 给 darwin 链接时按 macOS 布局写死了框架路径
+    #   /System/Library/Frameworks/X.framework/Versions/A/X
+    # iOS 的 dyld 缓存里是 X.framework/X（没有 Versions/A），路径对不上就是
+    # "Library not loaded ... not in dyld cache"。逐条改短再补 NUL（新名更短，原地可写）。
+    off = 32
+    for _ in range(ncmds):
+        cmd, size = struct.unpack('<II', data[off:off + 8])
+        if cmd in (0xC, 0x8000001F, 0x18, 0x1F, 0x23):  # LOAD_DYLIB 家族
+            name_off = struct.unpack('<I', data[off + 8:off + 12])[0]
+            start = off + name_off
+            end = data.find(b'\0', start)
+            if end < 0:
+                end = off + size
+            raw = bytes(data[start:end])
+            name = raw.decode('utf-8', 'replace')
+            if '/Versions/A/' in name:
+                new_name = name.replace('/Versions/A/', '/').encode()
+                if len(new_name) >= len(raw) + 1:  # 必须能塞进原槽位并留 NUL
+                    raise SystemExit('新路径没变短，无法原地替换: %s' % name)
+                data[start:start + len(raw)] = new_name + b'\0' * (len(raw) - len(new_name))
+                changed.append('%s -> %s' % (name, new_name.decode()))
+        off += size
+
     if not changed:
         raise SystemExit('没找到任何平台字段，构建可能已经变了')
 
