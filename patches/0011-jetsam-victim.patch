@@ -1,17 +1,6 @@
 --- a/cmd/server/iosmem_darwin.go
 +++ b/cmd/server/iosmem_darwin.go
-@@ -242,7 +242,9 @@
- 		if err != nil {
- 			continue
- 		}
--		log.Printf("[jetsam] 近期事件 %s  %s  %dB", filepath.Base(f), st.ModTime().Format("01-02 15:04:05"), st.Size())
-+		log.Printf("[jetsam] 近期事件 %s  %s  %dB  reason=%s largestProcess=%s",
-+			filepath.Base(f), st.ModTime().Format("01-02 15:04:05"), st.Size(),
-+			eventField(v, "reason"), eventField(v, "largestProcess"))
- 
- 		fh, err := os.Open(f)
- 		if err != nil {
-@@ -261,30 +263,101 @@
+@@ -261,30 +261,103 @@
  		if err := json.Unmarshal(body, &v); err != nil {
  			continue
  		}
@@ -19,6 +8,8 @@
 -			log.Printf("[jetsam] %s → name=%v reason=%v rpages=%v lifetimeMax=%v footprint=%v",
 -				filepath.Base(f), hit["name"], hit["reason"], hit["rpages"],
 -				hit["lifetimeMax"], hit["phys_footprint"])
++		log.Printf("[jetsam]   %s 事件: reason=%s largestProcess=%s",
++			filepath.Base(f), eventField(v, "reason"), eventField(v, "largestProcess"))
 +
 +		// JetsamEvent 会把内存最高的几十个进程全抄一遍，**只有被杀的条目带 reason**。
 +		// -16 把「快照成员」当成「死因」报了三回，这里按 reason 分流。
