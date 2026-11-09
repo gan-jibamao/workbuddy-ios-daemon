@@ -19,6 +19,9 @@
 `-14` 没有文档：那一版只把补丁文件放进了包，`main` 里漏了调用，release 与 tag 已删除。
 现在由 CI 的 `verify patch wiring` 挡住这一类。
 
+`-18` 也没留：加了 `prerm`（卸载前 bootout + killall 兜底），当天按老大要求回退，
+release、tag、索引里的包全部撤掉，代码回到 `-17`。
+
 ## 一句话时间线
 
 ```
