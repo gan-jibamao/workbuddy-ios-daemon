@@ -9,6 +9,17 @@
         <string>-config</string>
         <string>config.json</string>
     </array>
+    <!-- 关键：不写这两个键，launchd 会按「普通 mobile 用户守护进程」的默认值
+         给一个 ~18MB 的 per-process 限额。Go 进程空闲就要 17MB，一次对话请求
+         就把 RSS 顶到 18MB，内核按 reason=per-process-limit 直接 SIGKILL，
+         表现为「每个请求结束 0~2 秒后必重启、无 panic 无 bye 无信号」。
+         JetsamMemoryLimit 单位是 MB（对照 Apple 自带的 com.apple.timed:
+         JetsamMemoryLimit 2500 / JetsamPriority -49）。 -->
+    <key>JetsamProperties</key>
+    <dict>
+        <key>JetsamMemoryLimit</key><integer>256</integer>
+        <key>JetsamPriority</key><integer>-49</integer>
+    </dict>
     <key>WorkingDirectory</key><string>@DATA@</string>
     <key>UserName</key><string>mobile</string>
     <key>RunAtLoad</key><true/>

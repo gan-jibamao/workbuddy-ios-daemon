@@ -92,6 +92,21 @@ jobs:
           dash -n packaging/postinst
           dash -n packaging/wb2api-doctor
 
+      # 这一版真机死因是内核 per-process-limit（18MB）。少了这两个键就是复发。
+      - name: verify plist (jetsam 限额)
+        run: |
+          set -e
+          python3 - <<'PY'
+          import plistlib
+          d = plistlib.load(open('packaging/com.gan.wb2api.plist', 'rb'))
+          j = d.get('JetsamProperties') or {}
+          assert j.get('JetsamMemoryLimit', 0) >= 128, j
+          assert j.get('JetsamPriority', 0) <= -10, j
+          assert d.get('KeepAlive') is True, d.get('KeepAlive')
+          assert '@BIN@' in d['ProgramArguments'][0] or d['ProgramArguments'][0].startswith('/')
+          print('plist ok:', j)
+          PY
+
       - name: package deb
         run: |
           set -e
