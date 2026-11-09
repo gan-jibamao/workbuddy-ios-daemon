@@ -64,6 +64,15 @@ jobs:
           chmod +x tools/ldid
           tools/ldid -S wb2api
 
+      # 平台对 != 能加载。这一关检查 iOS 真实路径白名单 + 签名页哈希：
+      # v2026.11.9-daemon 就是「平台改对了、路径还是 macOS」死在真机 dyld 上。
+      - name: verify macho (iOS-loadable + 签名有效)
+        run: |
+          set -e
+          python3 scripts/verify_macho.py wb2api
+          dash -n packaging/postinst
+          dash -n packaging/wb2api-doctor
+
       - name: package deb
         run: |
           set -e
@@ -71,10 +80,12 @@ jobs:
           rm -rf "$ROOT"
           mkdir -p "$ROOT/DEBIAN" "$ROOT/var/jb/usr/local/bin" "$ROOT/var/jb/Library/LaunchDaemons"
           cp wb2api "$ROOT/var/jb/usr/local/bin/wb2api"
+          cp packaging/wb2api-doctor "$ROOT/var/jb/usr/local/bin/wb2api-doctor"
           cp packaging/com.gan.wb2api.plist "$ROOT/var/jb/Library/LaunchDaemons/"
           cp packaging/postinst "$ROOT/DEBIAN/postinst"
           sed "s/@VERSION@/${VERSION}/" packaging/control > "$ROOT/DEBIAN/control"
-          chmod 755 "$ROOT/DEBIAN/postinst" "$ROOT/var/jb/usr/local/bin/wb2api"
+          chmod 755 "$ROOT/DEBIAN/postinst" "$ROOT/var/jb/usr/local/bin/wb2api" \
+                    "$ROOT/var/jb/usr/local/bin/wb2api-doctor"
           chmod 644 "$ROOT/DEBIAN/control" "$ROOT/var/jb/Library/LaunchDaemons/com.gan.wb2api.plist"
           DEB="com.gan.wb2api_${VERSION}_iphoneos-arm64e.deb"
           # -Zgzip：越狱设备上的 dpkg 版本参差，zstd 不一定认，gzip 最稳

@@ -1,0 +1,34 @@
+#!/bin/sh
+# wb2api-doctor —— 一条命令收齐排障现场： wb2api-doctor > /tmp/wb.txt
+JB=$(command -v jbroot >/dev/null 2>&1 && jbroot || echo /var/jb)
+DATA="$JB/var/mobile/Library/wb2api"
+BIN="$JB/usr/local/bin/wb2api"
+PLIST="$JB/Library/LaunchDaemons/com.gan.wb2api.plist"
+
+echo "===== 1. 系统 ====="
+uname -a
+echo "jbroot=$JB"
+
+echo "===== 2. 二进制 ====="
+ls -l "$BIN" 2>&1
+echo "--- 加载自检（-h，期望看到 Usage of）---"
+"$BIN" -h 2>&1 | head -5
+
+echo "===== 3. plist ====="
+cat "$PLIST" 2>&1
+
+echo "===== 4. launchd ====="
+launchctl print system/com.gan.wb2api 2>&1 | head -30
+
+echo "===== 5. 进程 ====="
+ps -A 2>/dev/null | grep -i wb2api || echo "（没有 wb2api 进程）"
+
+echo "===== 6. server.log 末 40 行 ====="
+tail -40 "$DATA/server.log" 2>&1
+
+echo "===== 7. 面板探测 ====="
+curl -s -m 3 -o /dev/null -w 'http_code=%{http_code}\n' \
+    http://127.0.0.1:7863/panel/api/overview 2>&1 || echo "连不上"
+
+echo "===== 8. 数据目录 ====="
+ls -l "$DATA" 2>&1

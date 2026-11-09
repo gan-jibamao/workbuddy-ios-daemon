@@ -9,14 +9,34 @@ mkdir -p "$DATA"
 chown mobile:mobile "$DATA" 2>/dev/null || true
 chmod 755 "$BIN"
 
+# ---- 预检：只验证「dyld 能加载 + Go runtime 起得来」，不启服务 ----
+# flag 包遇到 -h 会打印 "Usage of ..." 后 exit 2 —— 等于白跑一遍动态链接与运行时初始化。
+# v2026.11.9-daemon 的坑：包能装上、launchd 也在拉，但 dyld 找不到框架路径，
+# 只有 server.log 里一大片 "Library not loaded"。现在把这段失败提前到安装输出里。
+PREFLIGHT="$DATA/preflight.log"
+START=1
+if "$BIN" -h >"$PREFLIGHT" 2>&1 || grep -q 'Usage of ' "$PREFLIGHT"; then
+    echo "wb2api: 预检通过（dyld + runtime 正常）"
+else
+    START=0
+    echo "wb2api: !! 预检失败，这个二进制在这台设备上起不来 !!" >&2
+    sed 's/^/    /' "$PREFLIGHT" >&2
+    echo "wb2api: 原文同时写在 $PREFLIGHT；已跳过启动，避免 KeepAlive 无限重启" >&2
+fi
+
 # 把占位符换成真实路径（RootHide 的 bootstrap 路径是随机的）
 sed -i "s#@BIN@#$BIN#g; s#@DATA@#$DATA#g" "$PLIST"
 chmod 644 "$PLIST"
 chown root:wheel "$PLIST" 2>/dev/null || true
 
-if command -v launchctl >/dev/null 2>&1; then
+if [ "$START" = 1 ] && command -v launchctl >/dev/null 2>&1; then
     launchctl bootout system "$PLIST" 2>/dev/null || true
     launchctl bootstrap system "$PLIST" 2>/dev/null || launchctl load -w "$PLIST" 2>/dev/null || true
 fi
-echo "wb2api: installed. 面板地址 http://127.0.0.1:7863/panel/"
+if [ "$START" = 1 ]; then
+    echo "wb2api: installed. 面板地址 http://127.0.0.1:7863/panel/"
+else
+    echo "wb2api: 已安装但未启动 —— 先解决上面的加载错误。"
+fi
 echo "wb2api: 数据目录 $DATA （config.json / auths / server.log）"
+echo "wb2api: 出状况先跑 wb2api-doctor，把输出发回来"
