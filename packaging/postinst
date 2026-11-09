@@ -11,8 +11,6 @@ chmod 755 "$BIN"
 
 # ---- 预检：只验证「dyld 能加载 + Go runtime 起得来」，不启服务 ----
 # flag 包遇到 -h 会打印 "Usage of ..." 后 exit 2 —— 等于白跑一遍动态链接与运行时初始化。
-# v2026.11.9-daemon 的坑：包能装上、launchd 也在拉，但 dyld 找不到框架路径，
-# 只有 server.log 里一大片 "Library not loaded"。现在把这段失败提前到安装输出里。
 PREFLIGHT="$DATA/preflight.log"
 START=1
 if "$BIN" -h >"$PREFLIGHT" 2>&1 || grep -q 'Usage of ' "$PREFLIGHT"; then
@@ -30,11 +28,33 @@ chmod 644 "$PLIST"
 chown root:wheel "$PLIST" 2>/dev/null || true
 
 if [ "$START" = 1 ] && command -v launchctl >/dev/null 2>&1; then
+    # 旧版本以 UserName=mobile 运行 → job 落在 user/501 域（用户级 agent）。
+    # iOS 回收用户会话时会把整条 user 域的 job 一起带走，表现为不定时静默死亡。
+    # 这里把所有可能残留的域都 bootout 干净，再统一 bootstrap 到 system 域。
+    U=$(id -u mobile 2>/dev/null || echo 501)
+    for d in "user/$U" "gui/$U" system; do
+        launchctl bootout "$d/com.gan.wb2api" 2>/dev/null || true
+    done
     launchctl bootout system "$PLIST" 2>/dev/null || true
-    launchctl bootstrap system "$PLIST" 2>/dev/null || launchctl load -w "$PLIST" 2>/dev/null || true
+    launchctl remove com.gan.wb2api 2>/dev/null || true
+    sleep 1
+
+    if ! launchctl bootstrap system "$PLIST" 2>/tmp/_wb_boot; then
+        launchctl load -w "$PLIST" 2>>/tmp/_wb_boot || true
+    fi
+    sleep 1
+
+    if launchctl print system/com.gan.wb2api >/tmp/_wb_dom 2>&1; then
+        echo "wb2api: 已装入 system 域（root 身份，不受 mobile 会话回收影响）"
+        grep -E 'state =|last exit|program =' /tmp/_wb_dom 2>/dev/null | head -3 | sed 's/^/    /' || true
+    else
+        echo "wb2api: !! 没进 system 域 —— 把下面这段发回来" >&2
+        head -20 /tmp/_wb_dom 2>/dev/null | sed 's/^/    /' >&2
+        head -20 /tmp/_wb_boot 2>/dev/null | sed 's/^/    boot: /' >&2
+    fi
 fi
 if [ "$START" = 1 ]; then
-    echo "wb2api: installed. 面板地址 http://127.0.0.1:7863/panel/"
+    echo "wb2api: installed. 面板地址 http://127.0.0.1:7863"
 else
     echo "wb2api: 已安装但未启动 —— 先解决上面的加载错误。"
 fi

@@ -10,7 +10,13 @@
         <string>config.json</string>
     </array>
     <key>WorkingDirectory</key><string>@DATA@</string>
-    <key>UserName</key><string>mobile</string>
+    <!-- 关键：不写 UserName（默认 root）＝ job 落在 system 域。
+         写 mobile 会让 launchd 把它当「用户级 agent」，落在 user/501 域；
+         iOS 回收用户会话时连 job 一起带走 —— 真机实测（-12 的 launchctl print）：
+             user/501/com.gan.wb2api = { type = LaunchDaemon, state = running }
+         这就是「不定时静默死亡、空闲也死、无 jetsam 事件、无信号」的来源。 -->
+    <key>UserName</key><string>root</string>
+    <key>GroupName</key><string>wheel</string>
     <key>RunAtLoad</key><true/>
     <key>KeepAlive</key><true/>
 
