@@ -59,11 +59,10 @@ jobs:
       - name: sign (ldid ad-hoc)
         run: |
           set -e
-          # GitHub Release 下载偶发 5xx，重试几次再放弃
-          curl -fsSL --retry 5 --retry-all-errors --retry-delay 3 \
-            -o ldid https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_linux_x86_64
-          chmod +x ldid
-          ./ldid -S wb2api
+          # ldid 已内置在 tools/ 里：GitHub Release CDN 对 runner 偶发 504，
+          # 每次构建现下载会随机把流水线打挂。
+          chmod +x tools/ldid
+          tools/ldid -S wb2api
 
       - name: package deb
         run: |
