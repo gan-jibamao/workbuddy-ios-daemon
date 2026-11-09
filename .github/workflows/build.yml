@@ -45,6 +45,17 @@ jobs:
           cp patches/tests/main_listen_retry_test.go src/cmd/server/
           cp patches/tests/handler_root_redirect_test.go src/internal/server/
 
+      # 补丁打上 ≠ 真的接上了。0009 第一版就漏了 main.go 里那行调用：
+      # 文件进了包、函数成了死代码，抬手 jetsam 等于没做。这里直接验接线。
+      - name: verify patch wiring
+        run: |
+          set -e
+          grep -q 'applyProcessLimits()' src/cmd/server/main.go
+          grep -q 'rss=%dMB' src/cmd/server/main.go
+          test -f src/cmd/server/iosmem_darwin.go
+          test -f src/cmd/server/iosmem_other.go
+          echo "wiring ok"
+
       - uses: actions/setup-go@v5
         with:
           go-version-file: src/go.mod

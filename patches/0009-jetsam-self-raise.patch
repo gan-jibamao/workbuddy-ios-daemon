@@ -149,7 +149,17 @@
 +func logJetsamEvidence() {}
 --- a/cmd/server/main.go
 +++ b/cmd/server/main.go
-@@ -785,8 +785,10 @@
+@@ -568,6 +568,9 @@
+ 	// 同一个 Label 的 job 不可能在 ThrottleInterval 内起两次；日志里出现 1 秒
+ 	// 间隔的两次启动，说明跑的是两个不同的 launchd job。这两行把身份问出来。
+ 	log.Printf("[boot] job label=%q xpc=%q", os.Getenv("LAUNCH_JOBKEY_LABEL"), os.Getenv("XPC_SERVICE_NAME"))
++	// 身份 + 内存天花板：过去只能猜「到底以谁的身份跑、上限是多少」，这两行把它钉死。
++	log.Printf("[boot] uid=%d euid=%d jetsam=%s", os.Getuid(), os.Geteuid(), applyProcessLimits())
++	go logJetsamEvidence()
+ 	go startAliveLogger(ctx, startedAt)
+ 	go watchSignals(startedAt)
+ 	logJobExitReason()
+@@ -785,8 +788,10 @@
  		case <-t.C:
  			var ms runtime.MemStats
  			runtime.ReadMemStats(&ms)
@@ -162,7 +172,7 @@
  		}
  	}
  }
-@@ -848,9 +850,10 @@
+@@ -848,9 +853,10 @@
  			log.Printf("[launchd] %s print 失败: %v", cand, err)
  			return
  		}
