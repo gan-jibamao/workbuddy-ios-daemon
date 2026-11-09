@@ -88,6 +88,10 @@ jobs:
             echo "签名里没有 platform-application —— entitlements 没进包" >&2
             exit 1
           fi
+          if ! grep -qa 'com.apple.private.memorystatus' wb2api; then
+            echo "签名里没有 memorystatus —— 抬 jetsam 上限会 EPERM" >&2
+            exit 1
+          fi
 
       # 平台对 != 能加载。这一关检查 iOS 真实路径白名单 + 签名页哈希：
       # v2026.11.9-daemon 就是「平台改对了、路径还是 macOS」死在真机 dyld 上。

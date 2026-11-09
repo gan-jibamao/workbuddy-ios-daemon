@@ -4,8 +4,19 @@ if command -v jbroot >/dev/null 2>&1; then JB=$(jbroot); else JB=/var/jb; fi
 DATA="$JB/var/mobile/Library/wb2api"
 BIN="$JB/usr/local/bin/wb2api"
 PLIST="$JB/Library/LaunchDaemons/com.gan.wb2api.plist"
+ILOG="$DATA/install.log"
 
 mkdir -p "$DATA"
+# install.log 是唯一能把「安装期到底发生了什么」带回给开发者的通道：
+# dpkg 的输出用户看不到、也没法转发，写进 $DATA 就能被 server.log 带出来。
+: > "$ILOG" 2>/dev/null || true
+say() { echo "$@" ; echo "$@" >> "$ILOG" 2>/dev/null || true; }
+
+say "===== install $(date '+%F %T') ====="
+say "id -u=$(id -u 2>/dev/null) id -un=$(id -un 2>/dev/null)"
+say "jbroot=$JB"
+say "plist=$PLIST"
+
 chown mobile:mobile "$DATA" 2>/dev/null || true
 chmod 755 "$BIN"
 
@@ -14,11 +25,13 @@ chmod 755 "$BIN"
 PREFLIGHT="$DATA/preflight.log"
 START=1
 if "$BIN" -h >"$PREFLIGHT" 2>&1 || grep -q 'Usage of ' "$PREFLIGHT"; then
-    echo "wb2api: 预检通过（dyld + runtime 正常）"
+    say "wb2api: 预检通过（dyld + runtime 正常）"
 else
     START=0
+    say "wb2api: !! 预检失败，这个二进制在这台设备上起不来 !!"
+    sed 's/^/    /' "$PREFLIGHT" >>"$ILOG" 2>&1 || true
     echo "wb2api: !! 预检失败，这个二进制在这台设备上起不来 !!" >&2
-    sed 's/^/    /' "$PREFLIGHT" >&2
+    sed 's/^/    /' "$PREFLIGHT" >&2 || true
     echo "wb2api: 原文同时写在 $PREFLIGHT；已跳过启动，避免 KeepAlive 无限重启" >&2
 fi
 
@@ -29,34 +42,45 @@ chown root:wheel "$PLIST" 2>/dev/null || true
 
 if [ "$START" = 1 ] && command -v launchctl >/dev/null 2>&1; then
     # 旧版本以 UserName=mobile 运行 → job 落在 user/501 域（用户级 agent）。
-    # iOS 回收用户会话时会把整条 user 域的 job 一起带走，表现为不定时静默死亡。
-    # 这里把所有可能残留的域都 bootout 干净，再统一 bootstrap 到 system 域。
+    # iOS 回收用户会话时会把整条 user 域的 job 一起带走。
+    # 这里把所有可能残留的域都 bootout 干净，再统一 bootstrap 到 system 域；
+    # 每一步的真实输出都进 install.log，成功与否不再靠猜。
     U=$(id -u mobile 2>/dev/null || echo 501)
     for d in "user/$U" "gui/$U" system; do
-        launchctl bootout "$d/com.gan.wb2api" 2>/dev/null || true
+        say "bootout $d/com.gan.wb2api: $(launchctl bootout "$d/com.gan.wb2api" 2>&1 || true)"
     done
-    launchctl bootout system "$PLIST" 2>/dev/null || true
-    launchctl remove com.gan.wb2api 2>/dev/null || true
+    launchctl bootout system "$PLIST" >>"$ILOG" 2>&1 || true
+    launchctl remove com.gan.wb2api >>"$ILOG" 2>&1 || true
     sleep 1
 
-    if ! launchctl bootstrap system "$PLIST" 2>/tmp/_wb_boot; then
-        launchctl load -w "$PLIST" 2>>/tmp/_wb_boot || true
-    fi
-    sleep 1
-
-    if launchctl print system/com.gan.wb2api >/tmp/_wb_dom 2>&1; then
-        echo "wb2api: 已装入 system 域（root 身份，不受 mobile 会话回收影响）"
-        grep -E 'state =|last exit|program =' /tmp/_wb_dom 2>/dev/null | head -3 | sed 's/^/    /' || true
+    if launchctl bootstrap system "$PLIST" >>"$ILOG" 2>&1; then
+        say "bootstrap system: OK"
+        DONE=1
     else
-        echo "wb2api: !! 没进 system 域 —— 把下面这段发回来" >&2
-        head -20 /tmp/_wb_dom 2>/dev/null | sed 's/^/    /' >&2
-        head -20 /tmp/_wb_boot 2>/dev/null | sed 's/^/    boot: /' >&2
+        say "bootstrap system: FAIL（原文已写入上方日志）"
+        DONE=0
     fi
+
+    if [ "$DONE" = 0 ]; then
+        if launchctl load -w "$PLIST" >>"$ILOG" 2>&1; then
+            say "回退 launchctl load -w: OK —— 注意：这会把 job 装进 user 域"
+        else
+            say "回退 launchctl load -w: FAIL"
+        fi
+    fi
+    sleep 1
+
+    say "---- print system ----"
+    launchctl print system/com.gan.wb2api >>"$ILOG" 2>&1 || true
+    say "---- print user/$U ----"
+    launchctl print "user/$U/com.gan.wb2api" >>"$ILOG" 2>&1 || true
+    say "---- list ----"
+    launchctl list 2>/dev/null | grep -i 'wb2api' >>"$ILOG" 2>&1 || true
 fi
 if [ "$START" = 1 ]; then
     echo "wb2api: installed. 面板地址 http://127.0.0.1:7863"
 else
     echo "wb2api: 已安装但未启动 —— 先解决上面的加载错误。"
 fi
-echo "wb2api: 数据目录 $DATA （config.json / auths / server.log）"
+echo "wb2api: 数据目录 $DATA （config.json / auths / server.log / install.log）"
 echo "wb2api: 出状况先跑 wb2api-doctor，把输出发回来"

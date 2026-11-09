@@ -50,10 +50,15 @@
         <key>TZ</key><string>Asia/Shanghai</string>
         <!-- RSS 就是被内核记账的那个数。堆本身只有 2~3MB，但 Go 默认 GOGC=100
              会让堆涨到上次存活量的两倍才回收，请求一密集就容易把 RSS 顶上去。
-             GOGC=25 收紧回收节奏，GOMEMLIMIT 给一个软上限兜底（超了只加频 GC，
-             不会 OOM）。 -->
-        <key>GOGC</key><string>25</string>
-        <key>GOMEMLIMIT</key><string>24MiB</string>
+             GOGC=20 收紧回收节奏；GOMEMLIMIT 给软上限兜底（超了只加频 GC，不 OOM）。
+
+             2026-11-09 14 版修正：24MiB 是给错了的药。真机上限（JetsamEvent）
+             只有 18MB，等于允许 Go 自己把进程喂到超限。压到 14MiB 留 4MB 余量。 -->
+        <key>GOGC</key><string>20</string>
+        <key>GOMEMLIMIT</key><string>14MiB</string>
+        <!-- madvdontneed=1：Go 归还内存时走 MADV_DONTNEED，页真正还给内核；
+             默认的 MADV_FREE_REUSABLE 在 jetsam 账本上仍然算数。 -->
+        <key>GODEBUG</key><string>madvdontneed=1</string>
     </dict>
 </dict>
 </plist>

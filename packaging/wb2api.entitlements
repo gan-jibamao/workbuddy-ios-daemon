@@ -20,5 +20,13 @@
          越权访问会记 deny（部分 class 直接 SIGKILL，且不留遗言）。 -->
     <key>com.apple.private.security.no-sandbox</key>
     <true/>
+
+    <!-- 允许调用 memorystatus_control()，即「把自己的 jetsam 上限抬上去」。
+         真机证据：JetsamEvent reason=per-process-limit, rpages=1152 = 18.0MB。
+         plist 的 JetsamProperties 只在 system 域生效，而这个 job 落在 user/501，
+         所以唯一可靠的办法是进程自己在 main 早期调 syscall 440。
+         越狱环境 amfid 被绕过，ad-hoc 签名带这条 entitlement 会被内核接受。 -->
+    <key>com.apple.private.memorystatus</key>
+    <true/>
 </dict>
 </plist>

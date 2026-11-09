@@ -8,6 +8,7 @@ PLIST="$JB/Library/LaunchDaemons/com.gan.wb2api.plist"
 echo "===== 1. 系统 ====="
 uname -a
 echo "jbroot=$JB"
+echo "id -u=$(id -u 2>/dev/null) id -un=$(id -un 2>/dev/null)"
 
 echo "===== 2. 二进制 ====="
 ls -l "$BIN" 2>&1
@@ -18,7 +19,12 @@ echo "===== 3. plist ====="
 cat "$PLIST" 2>&1
 
 echo "===== 4. launchd ====="
-launchctl print system/com.gan.wb2api 2>&1 | head -30
+echo "--- print system ---"
+launchctl print system/com.gan.wb2api 2>&1 | head -60
+echo "--- print user/$(id -u mobile 2>/dev/null || echo 501) ---"
+launchctl print "user/$(id -u mobile 2>/dev/null || echo 501)/com.gan.wb2api" 2>&1 | head -60
+echo "--- list ---"
+launchctl list 2>/dev/null | grep -i 'wb2api' || echo "（list 里没有 wb2api）"
 
 echo "===== 5. 进程 ====="
 ps -A 2>/dev/null | grep -i wb2api || echo "（没有 wb2api 进程）"
@@ -30,5 +36,17 @@ echo "===== 7. 面板探测 ====="
 curl -s -m 3 -o /dev/null -w 'http_code=%{http_code}\n' \
     http://127.0.0.1:7863/panel/api/overview 2>&1 || echo "连不上"
 
-echo "===== 8. 数据目录 ====="
+echo "===== 8. 内核杀进程记录（JetsamEvent）====="
+ls -lt /var/mobile/Library/Logs/CrashReporter/JetsamEvent-*.ips 2>&1 | head -5 || echo "（读不到）"
+NEWEST=$(ls -t /var/mobile/Library/Logs/CrashReporter/JetsamEvent-*.ips 2>/dev/null | head -1)
+if [ -n "$NEWEST" ]; then
+    echo "--- $NEWEST 里的 wb2api 段 ---"
+    grep -o '"name":"wb2api"[^}]*' "$NEWEST" 2>/dev/null | head -5 || true
+    grep -o '"reason":"[^"]*"' "$NEWEST" 2>/dev/null | head -5 || true
+fi
+
+echo "===== 9. 数据目录 ====="
 ls -l "$DATA" 2>&1
+
+echo "===== 10. install.log（最近一次安装）====="
+tail -60 "$DATA/install.log" 2>&1 || echo "（没有 install.log）"
