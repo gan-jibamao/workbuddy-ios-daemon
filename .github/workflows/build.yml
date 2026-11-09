@@ -77,7 +77,7 @@ jobs:
           sed "s/@VERSION@/${VERSION}/" packaging/control > "$ROOT/DEBIAN/control"
           chmod 755 "$ROOT/DEBIAN/postinst" "$ROOT/var/jb/usr/local/bin/wb2api"
           chmod 644 "$ROOT/DEBIAN/control" "$ROOT/var/jb/Library/LaunchDaemons/com.gan.wb2api.plist"
-          DEB="com.gan.wb2api_${VERSION}_iphoneos-arm64.deb"
+          DEB="com.gan.wb2api_${VERSION}_iphoneos-arm64e.deb"
           # -Zgzip：越狱设备上的 dpkg 版本参差，zstd 不一定认，gzip 最稳
           dpkg-deb -Zgzip --build --root-owner-group "$ROOT" "$DEB"
           sha256sum "$DEB" | tee "$DEB.sha256"
