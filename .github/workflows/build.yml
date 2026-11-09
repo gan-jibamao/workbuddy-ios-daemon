@@ -59,10 +59,11 @@ jobs:
       - name: sign (ldid ad-hoc)
         run: |
           set -e
-          curl -fsSL -o ldid https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_linux_x86_64
+          # GitHub Release 下载偶发 5xx，重试几次再放弃
+          curl -fsSL --retry 5 --retry-all-errors --retry-delay 3 \
+            -o ldid https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_linux_x86_64
           chmod +x ldid
           ./ldid -S wb2api
-          ./ldid -h wb2api || true
 
       - name: package deb
         run: |
