@@ -42,6 +42,12 @@
     <key>EnvironmentVariables</key>
     <dict>
         <key>TZ</key><string>Asia/Shanghai</string>
+        <!-- RSS 就是被内核记账的那个数。堆本身只有 2~3MB，但 Go 默认 GOGC=100
+             会让堆涨到上次存活量的两倍才回收，请求一密集就容易把 RSS 顶上去。
+             GOGC=25 收紧回收节奏，GOMEMLIMIT 给一个软上限兜底（超了只加频 GC，
+             不会 OOM）。 -->
+        <key>GOGC</key><string>25</string>
+        <key>GOMEMLIMIT</key><string>24MiB</string>
     </dict>
 </dict>
 </plist>
