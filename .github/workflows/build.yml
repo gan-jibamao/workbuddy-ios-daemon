@@ -113,7 +113,6 @@ jobs:
           set -e
           python3 scripts/verify_macho.py wb2api
           dash -n packaging/postinst
-          dash -n packaging/prerm
           dash -n packaging/wb2api-doctor
 
       # 这一版真机死因是内核 per-process-limit（18MB）。少了这两个键就是复发。
@@ -142,9 +141,8 @@ jobs:
           cp packaging/wb2api-doctor "$ROOT/var/jb/usr/local/bin/wb2api-doctor"
           cp packaging/com.gan.wb2api.plist "$ROOT/var/jb/Library/LaunchDaemons/"
           cp packaging/postinst "$ROOT/DEBIAN/postinst"
-          cp packaging/prerm "$ROOT/DEBIAN/prerm"
           sed "s/@VERSION@/${VERSION}/" packaging/control > "$ROOT/DEBIAN/control"
-          chmod 755 "$ROOT/DEBIAN/postinst" "$ROOT/DEBIAN/prerm" "$ROOT/var/jb/usr/local/bin/wb2api" \
+          chmod 755 "$ROOT/DEBIAN/postinst" "$ROOT/var/jb/usr/local/bin/wb2api" \
                     "$ROOT/var/jb/usr/local/bin/wb2api-doctor"
           chmod 644 "$ROOT/DEBIAN/control" "$ROOT/var/jb/Library/LaunchDaemons/com.gan.wb2api.plist"
           DEB="com.gan.wb2api_${VERSION}_iphoneos-arm64e.deb"

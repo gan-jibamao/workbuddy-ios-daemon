@@ -193,29 +193,14 @@ git tag v2026.11.9-daemon-arm64e-18 && git push origin v2026.11.9-daemon-arm64e-
 - `verify plist (jetsam 限额)`：`JetsamMemoryLimit ≥ 128`、`JetsamPriority ≤ -10`、
   `EnablePressuredExit=false`、`KeepAlive=true`
 
-## 卸载与回滚
-
-`apt remove com.gan.wb2api` 即可。包里的 `prerm` 会先把 job `bootout`（`user/501` / `gui/501` /
-`system` 三个域都试），等它优雅退出，3 秒还没走就 `killall -9` 兜底 —— 不会留下「文件删了但进程还在跑」
-的鬼状态。
-
-**数据目录一律保留**：`config.json`、`auths/`、`server.log`、`install.log` 都不在包的文件清单里，
-重装后账号与配置照旧。
-
-要彻底清干净（连账号一起）：
+## 回滚
 
 ```sh
+launchctl bootout system <jbroot>/Library/LaunchDaemons/com.gan.wb2api.plist
 apt remove com.gan.wb2api
-rm -rf /var/mobile/Containers/Shared/AppGroup/.jbroot-*/var/mobile/Library/wb2api
 ```
 
-手动停（不卸载，只想停）：
-
-```sh
-launchctl bootout user/501/com.gan.wb2api
-```
-
-App 里的服务端仍在，删掉 daemon 就回到原状。
+数据目录保留在 `var/mobile/Library/wb2api`。App 里的服务端仍在，删掉 daemon 就回到原状。
 
 ## 文档
 
