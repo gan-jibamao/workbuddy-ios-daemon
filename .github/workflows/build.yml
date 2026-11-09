@@ -102,6 +102,7 @@ jobs:
           j = d.get('JetsamProperties') or {}
           assert j.get('JetsamMemoryLimit', 0) >= 128, j
           assert j.get('JetsamPriority', 0) <= -10, j
+          assert d.get('EnablePressuredExit') is False, 'EnablePressuredExit 必须是 false'
           assert d.get('KeepAlive') is True, d.get('KeepAlive')
           assert '@BIN@' in d['ProgramArguments'][0] or d['ProgramArguments'][0].startswith('/')
           print('plist ok:', j)

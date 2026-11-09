@@ -9,22 +9,34 @@
         <string>-config</string>
         <string>config.json</string>
     </array>
-    <!-- 关键：不写这两个键，launchd 会按「普通 mobile 用户守护进程」的默认值
-         给一个 ~18MB 的 per-process 限额。Go 进程空闲就要 17MB，一次对话请求
-         就把 RSS 顶到 18MB，内核按 reason=per-process-limit 直接 SIGKILL，
-         表现为「每个请求结束 0~2 秒后必重启、无 panic 无 bye 无信号」。
-         JetsamMemoryLimit 单位是 MB（对照 Apple 自带的 com.apple.timed:
-         JetsamMemoryLimit 2500 / JetsamPriority -49）。 -->
+    <key>WorkingDirectory</key><string>@DATA@</string>
+    <key>UserName</key><string>mobile</string>
+    <key>RunAtLoad</key><true/>
+    <key>KeepAlive</key><true/>
+
+    <!-- ThrottleInterval 只管「启动后 10 秒内就退出」的重启间隔。孤儿进程死掉时
+         launchd 会立刻重拉，这个值就是客户端看到的那段 ECONNREFUSED 空窗长度。
+         10 秒太长（一次重启 = 一次「无法连接服务器」），压到 2 秒。 -->
+    <key>ThrottleInterval</key><integer>2</integer>
+
+    <!-- EnablePressuredExit 默认 true（launchd.plist(5)）：空闲 + 系统内存压力下
+         内核可以直接回收该进程。这条路径不给信号、不写 panic、也不产生
+         JetsamEvent 文件 —— 日志里就是「上一条心跳之后忽然多了一次启动」。
+         Apple 自带的 com.apple.syslogd 正是用 false 保住常驻服务的。 -->
+    <key>EnablePressuredExit</key><false/>
+
+    <!-- 不写 JetsamProperties，launchd 按「普通 mobile 用户守护进程」的默认值给
+         约 18MB 的 per-process 限额。Go 进程空闲就要 17MB，一次对话请求把 RSS
+         顶过 18MB，内核按 reason=per-process-limit 直接 SIGKILL（真机证据：
+         JetsamEvent-2026-11-09-143726.ips，rpages=1152 = 18.0MB）。
+         JetsamMemoryLimit 单位是 MB，对照 Apple 自带的 com.apple.timed
+         （2500 / -49）与 Dopamine 自用 plist（128）。 -->
     <key>JetsamProperties</key>
     <dict>
         <key>JetsamMemoryLimit</key><integer>256</integer>
         <key>JetsamPriority</key><integer>-49</integer>
     </dict>
-    <key>WorkingDirectory</key><string>@DATA@</string>
-    <key>UserName</key><string>mobile</string>
-    <key>RunAtLoad</key><true/>
-    <key>KeepAlive</key><true/>
-    <key>ThrottleInterval</key><integer>10</integer>
+
     <key>StandardOutPath</key><string>@DATA@/server.log</string>
     <key>StandardErrorPath</key><string>@DATA@/server.log</string>
     <key>EnvironmentVariables</key>
