@@ -15,6 +15,7 @@
 | [交付说明-15.md](交付说明-15.md) | **自抬 jetsam 到 256MB** | **死亡停止** |
 | [交付说明-16.md](交付说明-16.md) | `ri_phys_footprint` 同口径 | 内存数字可信 |
 | [交付说明-17.md](交付说明-17.md) | JetsamEvent 只报 victim | 真凶是别人的 daemon |
+| [交付说明-19.md](交付说明-19.md) | 上游同步 `cf16478`（45 提交 / 56 新文件） | 换基线，iOS 补丁 11 条全落地，`go test` 全绿 |
 
 `-14` 没有文档：那一版只把补丁文件放进了包，`main` 里漏了调用，release 与 tag 已删除。
 现在由 CI 的 `verify patch wiring` 挡住这一类。
