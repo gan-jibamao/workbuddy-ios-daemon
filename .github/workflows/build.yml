@@ -5,13 +5,23 @@ on:
     branches: [main]
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      panel:
+        description: '面板资源：upstream=跟随上游（默认）/ legacy=仓库内 WKWebView 补丁版'
+        type: choice
+        options: [upstream, legacy]
+        default: upstream
 
 permissions:
   contents: write
 
 env:
   UPSTREAM: misakano7545/workbuddy2api-panel
-  UPSTREAM_REF: cffb0389608947cbc196ec79ca73f8b4465b3040   # 含 PR #196 的合并提交
+  # 2026-11-11：从 cffb038（11-09 01:45）抬到 cf16478（11-11 19:54）。
+  # 中间 45 个提交 / 56 个新文件：续写救援（toolonly / narration）、SSE 首帧注释帧、
+  # 账号目录热重载、运行日志落盘+导出、额度窗口探针、代理订阅导入、更新通道、
+  # 一行多 JSON 拆分、出站空 text 段补位。11 个 iOS 补丁已实测全部干净落地。
+  UPSTREAM_REF: cf16478db304a9882aab79fcbcac12dd118f2faa
 
 jobs:
   build:
@@ -62,13 +72,30 @@ jobs:
         with:
           go-version-file: src/go.mod
 
-      # 面板资源换成打过补丁的那三份：这个 App 的 WKWebView 里 confirm / 下载 / 文件选择
-      # 都不可用，不换的话 daemon 面板同样是坏的。
-      - name: swap panel assets
+      # 跨 45 个上游提交换基线，先立回归网。/toolonly、sse_frame_split、reload、
+      # upstreamhealth、channel 都是这一批新加的，任一条不绿就不该出包。
+      - name: go test
         run: |
           set -e
-          cp assets/index.html assets/app.js assets/theme.js src/internal/panel/
-          ls -l src/internal/panel/index.html src/internal/panel/app.js
+          cd src
+          go test ./...
+
+      # 面板资源：默认跟随上游（2026-11-11 起）。上游面板已经带多文件导入预览、
+      # 日志导出、账号目录热重载、更新通道、救援统计；再拿仓库里那三份 9 月快照
+      # 覆盖回去，等于把新接口的入口全藏了。
+      # legacy 只在回到 WKWebView 壳（wb.api.local）时才需要 —— 那个壳里原生
+      # confirm() 会静默取消，assets/ 里的 gcConfirm 补丁就是为此打的。
+      - name: select panel assets
+        run: |
+          set -e
+          PANEL="${{ inputs.panel }}"
+          if [[ "$PANEL" == "legacy" ]]; then
+            cp assets/index.html assets/app.js assets/theme.js src/internal/panel/
+            echo "panel: legacy（仓库内 WKWebView 补丁版）"
+          else
+            echo "panel: upstream（跟随 ${{ env.UPSTREAM_REF }}）"
+          fi
+          ls -l src/internal/panel/index.html src/internal/panel/app.js src/internal/panel/theme.js
 
       - name: version
         run: |
