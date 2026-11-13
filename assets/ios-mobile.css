@@ -11,12 +11,12 @@
  */
 
 /* 跨断点：卡片头的长提示在桌面宽度下同样会被 overflow:hidden 裁掉，这条不分尺寸。 */
-html.ios-m .box h3 {
+html.ios-m body .box h3 {
   white-space: normal !important;
   overflow-wrap: anywhere;
 }
-html.ios-m .box > header .hint,
-html.ios-m .box > header .note {
+html.ios-m body .box > header .hint,
+html.ios-m body .box > header .note {
   white-space: normal !important;
   overflow-wrap: anywhere;
 }
@@ -27,20 +27,20 @@ html.ios-m .box > header .note {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
-  html.ios-m .shell,
-  html.ios-m .main {
+  html.ios-m body .shell,
+  html.ios-m body .main {
     padding-bottom: calc(24px + env(safe-area-inset-bottom));
   }
 
   /* 1. 顶栏 */
-  html.ios-m .topbar {
+  html.ios-m body .topbar {
     display: flex;
     align-items: center;
     gap: 8px;
     min-height: 48px;
     padding: calc(8px + env(safe-area-inset-top)) 14px 8px;
   }
-  html.ios-m .topbar h2 {
+  html.ios-m body .topbar h2 {
     flex: 0 1 auto;
     min-width: 0;
     overflow: hidden;
@@ -50,7 +50,7 @@ html.ios-m .box > header .note {
     font-weight: 650;
     letter-spacing: -0.01em;
   }
-  html.ios-m .topbar .meta {
+  html.ios-m body .topbar .meta {
     flex: 0 0 auto;
     max-width: 42vw;
     overflow: hidden;
@@ -59,66 +59,66 @@ html.ios-m .box > header .note {
     font-size: 11.5px;
     color: var(--ink-2);
   }
-  html.ios-m .topbar .sep {
+  html.ios-m body .topbar .sep {
     flex: 0 0 auto;
     color: var(--ink-3);
   }
 
   /* 2. 控件。iOS 上 select 不认 min-height，必须给确定的 height，
         否则会按 UA 的 28/29px 渲染（实测 38px 只在写 height 时生效）。 */
-  html.ios-m input,
-  html.ios-m select,
-  html.ios-m textarea {
+  html.ios-m body input,
+  html.ios-m body select,
+  html.ios-m body textarea {
     font-size: 16px !important;
   }
-  html.ios-m select,
-  html.ios-m select.xs {
+  html.ios-m body select,
+  html.ios-m body select.xs {
     height: 38px !important;
     min-width: 44px;
     padding: 0 10px !important;
     border-radius: 9px;
   }
-  html.ios-m input:not([type='checkbox']):not([type='radio']):not([type='file']) {
+  html.ios-m body input:not([type='checkbox']):not([type='radio']):not([type='file']) {
     height: 38px;
     padding: 0 10px;
     border-radius: 9px;
   }
-  html.ios-m textarea {
+  html.ios-m body textarea {
     min-height: 76px;
     padding: 8px 10px;
     border-radius: 9px;
   }
-  html.ios-m button,
-  html.ios-m .btn {
+  html.ios-m body button,
+  html.ios-m body .btn {
     min-height: 38px;
     padding-left: 12px;
     padding-right: 12px;
     font-size: 13.5px;
     border-radius: 9px;
   }
-  html.ios-m button.icon {
+  html.ios-m body button.icon {
     min-width: 38px;
     padding: 0;
   }
-  html.ios-m button.xs,
-  html.ios-m button.icon.xs {
+  html.ios-m body button.xs,
+  html.ios-m body button.icon.xs {
     height: 34px !important;
     min-height: 34px;
   }
   /* 次要按钮的文字原本是 --ink-3（白底 3.08:1），手机上偏浅 */
-  html.ios-m button:not(.primary):not(.danger):not(.bad):not(.on):not(.icon) {
+  html.ios-m body button:not(.primary):not(.danger):not(.bad):not(.on):not(.icon) {
     color: var(--ink-2);
   }
-  html.ios-m label {
+  html.ios-m body label {
     color: var(--ink-2);
   }
-  html.ios-m input[type='checkbox'],
-  html.ios-m input[type='radio'] {
+  html.ios-m body input[type='checkbox'],
+  html.ios-m body input[type='radio'] {
     width: 24px;
     height: 24px;
   }
-  html.ios-m label:has(> input[type='checkbox']),
-  html.ios-m label:has(> input[type='radio']) {
+  html.ios-m body label:has(> input[type='checkbox']),
+  html.ios-m body label:has(> input[type='radio']) {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -127,35 +127,35 @@ html.ios-m .box > header .note {
   }
 
   /* 3. 标题与说明字 */
-  html.ios-m .box h3 {
+  html.ios-m body .box h3 {
     display: block;
     font-size: 14.5px;
     font-weight: 650;
     letter-spacing: -0.01em;
     line-height: 1.45;
   }
-  html.ios-m .box > header {
+  html.ios-m body .box > header {
     padding: 13px 15px;
   }
-  html.ios-m .box > header .note,
-  html.ios-m .box > header .hint {
+  html.ios-m body .box > header .note,
+  html.ios-m body .box > header .hint {
     font-size: 11.5px;
     line-height: 1.5;
     color: var(--ink-2);
   }
-  html.ios-m .hint,
-  html.ios-m .note,
-  html.ios-m .subtext,
-  html.ios-m .k {
+  html.ios-m body .hint,
+  html.ios-m body .note,
+  html.ios-m body .subtext,
+  html.ios-m body .k {
     color: var(--ink-2);
   }
-  html.ios-m .d,
-  html.ios-m .empty,
-  html.ios-m .us-empty,
-  html.ios-m .pk-expiry-empty {
+  html.ios-m body .d,
+  html.ios-m body .empty,
+  html.ios-m body .us-empty,
+  html.ios-m body .pk-expiry-empty {
     color: var(--ink-2);
   }
-  html.ios-m th {
+  html.ios-m body th {
     color: var(--ink-2);
     font-size: 11px;
     font-weight: 600;
@@ -163,67 +163,67 @@ html.ios-m .box > header .note {
   }
 
   /* 4. 统计卡 */
-  html.ios-m .stats {
+  html.ios-m body .stats {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
-  html.ios-m .stat {
+  html.ios-m body .stat {
     padding: 12px 14px;
   }
-  html.ios-m .stat .v,
-  html.ios-m .stat b,
-  html.ios-m .stat strong {
+  html.ios-m body .stat .v,
+  html.ios-m body .stat b,
+  html.ios-m body .stat strong {
     font-size: 20px;
     font-weight: 650;
     font-variant-numeric: tabular-nums;
   }
 
   /* 5. 窄表（≤5 列）：取消 table.acc 的 640px 下限 */
-  html.ios-m table.fit {
+  html.ios-m body table.fit {
     min-width: 0 !important;
     width: 100% !important;
     table-layout: auto;
   }
-  html.ios-m table.fit th,
-  html.ios-m table.fit td {
+  html.ios-m body table.fit th,
+  html.ios-m body table.fit td {
     padding: 8px 7px !important;
     font-size: 12px !important;
     line-height: 1.45;
     white-space: normal !important;
     word-break: break-word;
   }
-  html.ios-m table.fit th {
+  html.ios-m body table.fit th {
     font-size: 10.5px !important;
   }
-  html.ios-m table.fit td.num,
-  html.ios-m table.fit th.num {
+  html.ios-m body table.fit td.num,
+  html.ios-m body table.fit th.num {
     font-variant-numeric: tabular-nums;
     text-align: right;
   }
-  html.ios-m table.fit tbody tr:nth-child(even) td {
+  html.ios-m body table.fit tbody tr:nth-child(even) td {
     background: color-mix(in srgb, var(--line-soft) 55%, transparent);
   }
-  html.ios-m .tbl-wrap {
+  html.ios-m body .tbl-wrap {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
     border-radius: 10px;
   }
 
   /* 6. 宽表（≥6 列）：两列卡片，JS 负责打 data-role / data-label */
-  html.ios-m table.as-cards {
+  html.ios-m body table.as-cards {
     display: block;
     width: 100% !important;
     min-width: 0 !important;
   }
-  html.ios-m table.as-cards thead {
+  html.ios-m body table.as-cards thead {
     display: none;
   }
-  html.ios-m table.as-cards tbody {
+  html.ios-m body table.as-cards tbody {
     display: block;
     min-width: 0 !important;
   }
-  html.ios-m table.as-cards tr {
+  html.ios-m body table.as-cards tr {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
     gap: 9px 14px;
@@ -235,7 +235,7 @@ html.ios-m .box > header .note {
     border: 1px solid var(--line);
     border-radius: 12px;
   }
-  html.ios-m table.as-cards td {
+  html.ios-m body table.as-cards td {
     display: block !important;
     min-width: 0;
     padding: 0 !important;
@@ -247,7 +247,7 @@ html.ios-m .box > header .note {
     overflow-wrap: anywhere;
     font-variant-numeric: tabular-nums;
   }
-  html.ios-m table.as-cards td[data-role='field']::before {
+  html.ios-m body table.as-cards td[data-role='field']::before {
     content: attr(data-label);
     display: block;
     margin-bottom: 2px;
@@ -256,7 +256,7 @@ html.ios-m .box > header .note {
     font-weight: 500;
     line-height: 1.3;
   }
-  html.ios-m table.as-cards td[data-role='title'] {
+  html.ios-m body table.as-cards td[data-role='title'] {
     grid-column: 1 / -1;
     padding-bottom: 9px !important;
     margin-bottom: 1px;
@@ -266,13 +266,13 @@ html.ios-m .box > header .note {
     letter-spacing: -0.01em;
     color: var(--ink);
   }
-  html.ios-m table.as-cards td[data-role='title']::before {
+  html.ios-m body table.as-cards td[data-role='title']::before {
     display: none;
   }
-  html.ios-m table.as-cards td[data-role='mark'] {
+  html.ios-m body table.as-cards td[data-role='mark'] {
     display: none !important;
   }
-  html.ios-m table.as-cards td[data-role='acts'] {
+  html.ios-m body table.as-cards td[data-role='acts'] {
     grid-column: 1 / -1;
     display: flex !important;
     justify-content: flex-end;
@@ -280,21 +280,21 @@ html.ios-m .box > header .note {
     padding-top: 6px !important;
     border-top: 1px solid var(--line-soft);
   }
-  html.ios-m table.as-cards td[data-role='acts'] button {
+  html.ios-m body table.as-cards td[data-role='acts'] button {
     min-width: 44px;
   }
-  html.ios-m table.as-cards tr[data-empty='1'] {
+  html.ios-m body table.as-cards tr[data-empty='1'] {
     display: block !important;
   }
-  html.ios-m table.as-cards tr[data-empty='1'] td {
+  html.ios-m body table.as-cards tr[data-empty='1'] td {
     text-align: center !important;
     color: var(--ink-2);
     padding: 14px 0 !important;
   }
 
   /* 7. 胶囊 */
-  html.ios-m table.as-cards td .pill,
-  html.ios-m table.fit td .pill {
+  html.ios-m body table.as-cards td .pill,
+  html.ios-m body table.fit td .pill {
     display: inline-flex;
     align-items: center;
     height: 22px;
@@ -304,11 +304,11 @@ html.ios-m .box > header .note {
   }
 
   /* 8. 抽屉 */
-  html.ios-m .nav {
+  html.ios-m body .nav {
     width: min(292px, 80vw) !important;
     padding: 12px 10px calc(14px + env(safe-area-inset-bottom));
   }
-  html.ios-m .nav a {
+  html.ios-m body .nav a {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -317,48 +317,48 @@ html.ios-m .box > header .note {
     border-radius: 9px;
     font-size: 14px;
   }
-  html.ios-m .nav a.on {
+  html.ios-m body .nav a.on {
     background: color-mix(in srgb, var(--accent) 12%, transparent);
     color: var(--accent);
     font-weight: 600;
   }
 
   /* 9. 弹窗 */
-  html.ios-m .veil.on {
+  html.ios-m body .veil.on {
     padding: 16px 14px calc(16px + env(safe-area-inset-bottom));
     align-items: flex-end;
   }
-  html.ios-m .dlg {
+  html.ios-m body .dlg {
     width: 100% !important;
     max-width: 100% !important;
     max-height: calc(100vh - 120px);
     border-radius: 16px;
   }
-  html.ios-m .dlg header {
+  html.ios-m body .dlg header {
     padding: 15px 16px 12px;
   }
-  html.ios-m .dlg .body {
+  html.ios-m body .dlg .body {
     padding: 14px 16px;
   }
-  html.ios-m .dlg footer {
+  html.ios-m body .dlg footer {
     padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
   }
 
   /* 10. 配置页折叠 */
-  html.ios-m .box.collapsed > *:not(header) {
+  html.ios-m body .box.collapsed > *:not(header) {
     display: none !important;
   }
-  html.ios-m .box > header {
+  html.ios-m body .box > header {
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     min-height: 46px;
   }
-  html.ios-m .box > header h3 {
+  html.ios-m body .box > header h3 {
     display: flex;
     align-items: center;
     gap: 7px;
   }
-  html.ios-m .box > header h3::before {
+  html.ios-m body .box > header h3::before {
     content: '';
     flex: 0 0 auto;
     width: 7px;
@@ -368,25 +368,25 @@ html.ios-m .box > header .note {
     transform: rotate(45deg) translateY(-2px);
     transition: transform 0.16s ease;
   }
-  html.ios-m .box.collapsed > header h3::before {
+  html.ios-m body .box.collapsed > header h3::before {
     transform: rotate(-45deg);
   }
 }
 
 /* 横屏（852×393）：仍是桌面侧栏布局，只把纵向留白收紧 */
 @media (max-width: 960px) and (max-height: 480px) {
-  html.ios-m .topbar {
+  html.ios-m body .topbar {
     min-height: 42px;
     padding-top: 6px;
     padding-bottom: 6px;
   }
-  html.ios-m .main {
+  html.ios-m body .main {
     padding-bottom: calc(12px + env(safe-area-inset-bottom));
   }
-  html.ios-m .box > header {
+  html.ios-m body .box > header {
     padding: 9px 14px;
   }
-  html.ios-m .stat {
+  html.ios-m body .stat {
     padding: 9px 12px;
   }
 }
