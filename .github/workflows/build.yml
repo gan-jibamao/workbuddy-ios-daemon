@@ -100,28 +100,40 @@ jobs:
 
       # 面板本身是桌面布局：卡片头的长提示被 overflow:hidden 裁掉、输入框 <16px 会让
       # iOS 聚焦时放整页、9 列的账号表在 390pt 上要横向拖 640px。
-      # 这里把 assets/ios-mobile.{css,js} 内联进 index.html 的 </head>——
-      # 不新增 embed 文件、不改上游源码，上游下次改面板也不会冲突。
+      #
+      # 注入方式有个坑：面板 CSP 是 default-src 'none'; script-src 'self'，
+      # **内联 <script> 会被拒**（style-src 里有 'unsafe-inline'，所以内联 CSS 可以）。
+      # 因此 CSS 内联进 index.html，JS 追加到 app.js 末尾——app.js 本来就是 go:embed
+      # 且在 /panel/app.js 白名单里，同源加载不受 CSP 影响。
       - name: inject ios mobile layout
         run: |
           set -e
           python3 - <<'PY'
           import pathlib
+
+          # 1) CSS -> index.html 的 </head> 前
           p = pathlib.Path("src/internal/panel/index.html")
           html = p.read_text(encoding="utf-8")
-          css = pathlib.Path("assets/ios-mobile.css").read_text(encoding="utf-8")
-          js = pathlib.Path("assets/ios-mobile.js").read_text(encoding="utf-8")
           if "ios-mobile-css" in html:
-              raise SystemExit("index.html 里已经有 ios-mobile，重复注入")
-          block = ('<style id="ios-mobile-css">\n' + css + '</style>\n'
-                   '<script id="ios-mobile-js">\n' + js + '</script>\n')
+              raise SystemExit("index.html 里已经有 ios-mobile-css，重复注入")
           if html.count("</head>") != 1:
               raise SystemExit("index.html 的 </head> 不是恰好一个，注入点不可靠")
+          css = pathlib.Path("assets/ios-mobile.css").read_text(encoding="utf-8")
+          block = '<style id="ios-mobile-css">\n' + css + '</style>\n'
           p.write_text(html.replace("</head>", block + "</head>", 1), encoding="utf-8")
-          print("injected", len(block), "bytes; html", len(html), "->", p.stat().st_size)
+          print("css:", len(block), "bytes ->", p.stat().st_size)
+
+          # 2) JS -> app.js 末尾（同源脚本，CSP 放行）
+          a = pathlib.Path("src/internal/panel/app.js")
+          s = a.read_text(encoding="utf-8")
+          if "ios-mobile-js" in s:
+              raise SystemExit("app.js 里已经有 ios-mobile-js，重复注入")
+          js = pathlib.Path("assets/ios-mobile.js").read_text(encoding="utf-8")
+          a.write_text(s + "\n;/* ---- ios-mobile-js ---- */\n(function(){\n" + js + "\n})();\n", encoding="utf-8")
+          print("js:", len(js), "bytes ->", a.stat().st_size)
           PY
           grep -q 'ios-mobile-css' src/internal/panel/index.html
-          grep -q 'ios-mobile-js' src/internal/panel/index.html
+          grep -q 'ios-mobile-js' src/internal/panel/app.js
           echo "mobile layout ok"
 
       - name: version
