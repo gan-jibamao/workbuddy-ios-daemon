@@ -123,6 +123,8 @@ jobs:
           grep -q 'ios-mobile-css' src/internal/panel/index.html
           grep -q 'ios-mobile-js' src/internal/panel/index.html
           echo "mobile layout ok"
+
+      - name: version
         run: |
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
