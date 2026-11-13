@@ -141,14 +141,17 @@
     foldConfig();
   }
 
+  /* 用 setTimeout 而不是 requestAnimationFrame：面板常被切到后台标签页，
+     后台 rAF 会完全暂停，导致 pending 永久卡住、表格再也不打补丁。
+     定时器在后台只是降频（约 1s 一次），不会停。 */
   var pending = false;
   function schedule() {
     if (pending) return;
     pending = true;
-    (window.requestAnimationFrame || window.setTimeout)(function () {
+    window.setTimeout(function () {
       pending = false;
       sweep();
-    }, 16);
+    }, 30);
   }
 
   function start() {
