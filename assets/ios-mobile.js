@@ -1,59 +1,82 @@
 /* ios-mobile.js —— iPhone 上的表格形态与配置页折叠。
  *
- * 面板每 5 秒整表重建（innerHTML），所以用 MutationObserver 持续打补丁，
- * 只写 class 与 data-label，不动 innerHTML、不碰事件绑定。
+ * 面板每 5 秒整表重建（innerHTML），并且会自主重载页面；
+ * 所以用 MutationObserver 持续打补丁，只写 class / data-* 属性，不动 innerHTML。
  *
- * 规则：
- *   表头 ≥ 6 列  -> as-cards（卡片）
- *   表头 1..5 列 -> fit（取消 640px 下限，压紧折行）
- *   没有表头     -> 不动（用量明细是动态表头，填充后会自动命中上面两条）
+ * 形态判定：
+ *   表头 >= 6 列  -> as-cards（两列网格卡片，第一列非装饰单元格当标题）
+ *   表头 1..5 列  -> fit（取消 table.acc 的 640px 下限，压紧折行）
+ *   空壳表（表头等数据） -> 先 fit，数据到了自动重判
  */
 (function () {
   var MQ = window.matchMedia('(max-width: 760px)');
   var CARD_MIN = 6;
+  var ROOT = document.documentElement;
 
-  function heads(table) {
+  /* 全部移动样式挂在 html.ios-m 下：面板的 `.xs{height:28px}` 一类类选择器
+     比裸标签特异性高，没有这一层压不住。面板重载后由这里补回来。 */
+  function ensureScope() {
+    if (!ROOT.classList.contains('ios-m')) ROOT.classList.add('ios-m');
+  }
+  ensureScope();
+
+  function headLabels(table) {
     var row = table.tHead && table.tHead.rows[0];
     if (!row) return null;
-    var labels = [];
+    var out = [];
     for (var i = 0; i < row.cells.length; i++) {
-      labels.push((row.cells[i].innerText || '').replace(/\s+/g, ' ').trim());
+      out.push((row.cells[i].innerText || '').replace(/\s+/g, ' ').trim());
     }
-    return labels;
+    return out;
   }
 
   function shape(table) {
-    var labels = heads(table);
-    if (!labels || !labels.length) {
-      /* 用量明细是空壳表（表头等数据到了才填）：先按窄表收着，
-         数据到达触发 mutation 后会自动重判成卡片。 */
+    var labels = headLabels(table);
+    if (!labels || labels.length < CARD_MIN) {
       table.classList.remove('as-cards');
       table.classList.add('fit');
       return;
     }
-    if (labels.length >= CARD_MIN) {
-      table.classList.add('as-cards');
-      table.classList.remove('fit');
-      var bodies = table.tBodies;
-      for (var b = 0; b < bodies.length; b++) {
-        var rows = bodies[b].rows;
-        for (var r = 0; r < rows.length; r++) {
-          var tds = rows[r].cells;
-          for (var c = 0; c < tds.length; c++) {
-            if (!tds[c].dataset.label) tds[c].dataset.label = labels[c] || '';
+    table.classList.add('as-cards');
+    table.classList.remove('fit');
+
+    var bodies = table.tBodies;
+    for (var b = 0; b < bodies.length; b++) {
+      var rows = bodies[b].rows;
+      for (var r = 0; r < rows.length; r++) {
+        var row = rows[r];
+        var tds = row.cells;
+        if (tds.length <= 1) {
+          row.dataset.empty = '1';
+          continue;
+        }
+        delete row.dataset.empty;
+        var titleTaken = false;
+        for (var c = 0; c < tds.length; c++) {
+          var td = tds[c];
+          var role;
+          if (td.classList.contains('mark') || td.classList.contains('c-mark')) {
+            role = 'mark';
+          } else if (td.classList.contains('c-acts')) {
+            role = 'acts';
+          } else if (!titleTaken) {
+            role = 'title';
+            titleTaken = true;
+          } else {
+            role = 'field';
           }
+          td.dataset.role = role;
+          if (role === 'field') td.dataset.label = labels[c] || '';
+          else if (td.dataset.label) delete td.dataset.label;
         }
       }
-      return;
     }
-    table.classList.remove('as-cards');
-    table.classList.add('fit');
   }
 
-  /* 配置页：八个分区折叠，默认只展开「服务」与「分域配置」。 */
+  /* ── 配置页折叠 ─────────────────────────────────────────────── */
   var STORE = 'wb_mobile_cfg_open';
 
-  function openMap() {
+  function readOpen() {
     try {
       return JSON.parse(localStorage.getItem(STORE) || '{}') || {};
     } catch (e) {
@@ -61,49 +84,52 @@
     }
   }
 
-  function saveMap(m) {
+  function writeOpen(m) {
     try {
       localStorage.setItem(STORE, JSON.stringify(m));
     } catch (e) {
-      /* 隐私模式下写不进去，忽略 */
+      /* 隐私模式写不进去，忽略 */
     }
+  }
+
+  function bindHeader(box, key) {
+    var header = box.querySelector('header');
+    if (!header) return;
+    header.addEventListener('click', function (ev) {
+      if (ev.target.closest('button, a, input, select, textarea')) return;
+      var m = readOpen();
+      var collapseNow = !box.classList.contains('collapsed');
+      m[key] = !collapseNow;
+      writeOpen(m);
+      box.classList.toggle('collapsed', collapseNow);
+      ev.preventDefault();
+    });
   }
 
   function foldConfig() {
     var view = document.getElementById('view-config');
-    if (!view || !MQ.matches) return;
+    if (!view) return;
     var boxes = view.querySelectorAll('.box');
-    var saved = openMap();
+    var saved = readOpen();
     for (var i = 0; i < boxes.length; i++) {
       var box = boxes[i];
       var h3 = box.querySelector('header h3');
       if (!h3) continue;
-      var key = (h3.innerText || '').trim().slice(0, 20);
-      if (!box.dataset.key) box.dataset.key = key;
+      var key = (h3.innerText || '').trim().slice(0, 24);
       var open = saved[key];
-      if (open === undefined) open = i < 2; /* 默认只开前两个 */
+      if (open === undefined) open = i < 2; /* 默认只展开前两块 */
       box.classList.toggle('collapsed', !open);
-      if (!box.dataset.bound) {
-        box.dataset.bound = '1';
-        (function (b, k) {
-          var hd = b.querySelector('header');
-          if (!hd) return;
-          hd.addEventListener('click', function (ev) {
-            if (ev.target.closest('button, a, input, select')) return;
-            var m = openMap();
-            m[k] = b.classList.contains('collapsed');
-            saveMap(m);
-            b.classList.toggle('collapsed');
-            ev.preventDefault();
-          });
-        })(box, key);
-      }
+      if (box.dataset.boundCfg === '1') continue;
+      box.dataset.boundCfg = '1';
+      bindHeader(box, key);
     }
   }
 
+  /* ── 执行 ───────────────────────────────────────────────────── */
   function sweep() {
+    ensureScope();
     var tables = document.querySelectorAll('table');
-    var i;
+    var i, k;
     if (!MQ.matches) {
       for (i = 0; i < tables.length; i++) {
         tables[i].classList.remove('as-cards');
@@ -128,9 +154,11 @@
   function start() {
     sweep();
     new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
+    /* 面板重载或外部脚本改写 <html> 的 class 时补回作用域 */
+    new MutationObserver(ensureScope).observe(ROOT, { attributes: true, attributeFilter: ['class'] });
     if (MQ.addEventListener) MQ.addEventListener('change', sweep);
     document.addEventListener('click', function (e) {
-      if (e.target.closest && e.target.closest('.nav')) setTimeout(sweep, 60);
+      if (e.target.closest && e.target.closest('.nav')) setTimeout(sweep, 80);
     });
   }
 

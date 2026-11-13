@@ -1,178 +1,392 @@
-/* ios-mobile.css —— 面板在 iPhone（14 Pro：393×852）上的排版修正。
+/* ios-mobile.css —— 面板在 iPhone（14 Pro：393×852）上的排版层。
  *
- * 由 CI 注入：CSS 内联进 internal/panel/index.html 的 </head>；
- * JS 追加到 internal/panel/app.js 末尾（面板 CSP 是 script-src 'self'，
- * 内联 <script> 会被拒，同源 app.js 不受影响）。
+ * 注入：内联进 internal/panel/index.html 的 </head>；JS 追加到 internal/panel/app.js
+ * （面板 CSP 是 script-src 'self'，内联 <script> 会被拒）。
  *
- * 量出来的四处问题：
- *   1. 卡片头的长提示被 .box 的 overflow:hidden 裁掉（h3 实测 620px vs 容器 366px）
- *   2. 输入框 12.5px，iOS 聚焦时放大整页且不缩回
- *   3. table.acc 有 min-width:640px，5 列表格也要横拖 273px
- *   4. 6 列以上表格（事件 13 列 / 1545px）在手机上无法阅读
+ * 为什么每条都挂 html.ios-m：面板自己的 `.xs{height:28px}`、`table.acc th` 这类类选择器
+ * 特异性高于裸标签，不加作用域压不住。
+ *
+ * 只重排不改色：沿用面板 token（浅色 --bg #f4f5f8 / 深色 #0c0e14，accent #3d5fe0 / #5b7cfa）。
+ * 4px 网格、11 / 13 / 14.5 三级字号、宽表两列卡片、窄表压紧。
  */
 
+/* 跨断点：卡片头的长提示在桌面宽度下同样会被 overflow:hidden 裁掉，这条不分尺寸。 */
+html.ios-m .box h3 {
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+html.ios-m .box > header .hint,
+html.ios-m .box > header .note {
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 760px) {
-  html,
-  body {
+  html.ios-m,
+  html.ios-m body {
     -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  html.ios-m .shell,
+  html.ios-m .main {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
   }
 
-  /* 1 —— 标题与提示换行 */
-  .box h3 {
-    display: block;
-    white-space: normal !important;
-    overflow-wrap: anywhere;
-    line-height: 1.45;
+  /* 1. 顶栏 */
+  html.ios-m .topbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: calc(8px + env(safe-area-inset-top)) 14px 8px;
   }
-  .box h3 .hint,
-  .hint {
-    display: block;
-    margin-top: 3px;
-    line-height: 1.55;
-    white-space: normal !important;
-  }
-
-  /* 2 —— 16px 是 Safari 不触发自动放大的下限 */
-  input,
-  select,
-  textarea {
-    font-size: 16px !important;
-  }
-
-  /* 3 —— 触控目标与安全区 */
-  button,
-  .btn {
-    min-height: 34px;
-  }
-  button.icon {
-    min-width: 34px;
-  }
-  .nav {
-    width: min(300px, 84vw) !important;
-    padding-bottom: calc(12px + env(safe-area-inset-bottom));
-  }
-  .main {
-    padding-bottom: calc(20px + env(safe-area-inset-bottom));
-  }
-  .topbar {
-    padding-top: env(safe-area-inset-top);
-  }
-  .topbar h2 {
+  html.ios-m .topbar h2 {
+    flex: 0 1 auto;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-size: 15.5px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
   }
-  /* iPhone 有 Home 指示条：底部弹窗别贴到手势区 */
-  .veil.on {
-    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  html.ios-m .topbar .meta {
+    flex: 0 0 auto;
+    max-width: 42vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11.5px;
+    color: var(--ink-2);
+  }
+  html.ios-m .topbar .sep {
+    flex: 0 0 auto;
+    color: var(--ink-3);
   }
 
-  /* 4 —— 列少的表格：取消 640px 硬下限，压紧内距让它自己折行 */
-  table.fit {
+  /* 2. 控件。iOS 上 select 不认 min-height，必须给确定的 height，
+        否则会按 UA 的 28/29px 渲染（实测 38px 只在写 height 时生效）。 */
+  html.ios-m input,
+  html.ios-m select,
+  html.ios-m textarea {
+    font-size: 16px !important;
+  }
+  html.ios-m select,
+  html.ios-m select.xs {
+    height: 38px !important;
+    min-width: 44px;
+    padding: 0 10px !important;
+    border-radius: 9px;
+  }
+  html.ios-m input:not([type='checkbox']):not([type='radio']):not([type='file']) {
+    height: 38px;
+    padding: 0 10px;
+    border-radius: 9px;
+  }
+  html.ios-m textarea {
+    min-height: 76px;
+    padding: 8px 10px;
+    border-radius: 9px;
+  }
+  html.ios-m button,
+  html.ios-m .btn {
+    min-height: 38px;
+    padding-left: 12px;
+    padding-right: 12px;
+    font-size: 13.5px;
+    border-radius: 9px;
+  }
+  html.ios-m button.icon {
+    min-width: 38px;
+    padding: 0;
+  }
+  html.ios-m button.xs,
+  html.ios-m button.icon.xs {
+    height: 34px !important;
+    min-height: 34px;
+  }
+  /* 次要按钮的文字原本是 --ink-3（白底 3.08:1），手机上偏浅 */
+  html.ios-m button:not(.primary):not(.danger):not(.bad):not(.on):not(.icon) {
+    color: var(--ink-2);
+  }
+  html.ios-m label {
+    color: var(--ink-2);
+  }
+  html.ios-m input[type='checkbox'],
+  html.ios-m input[type='radio'] {
+    width: 24px;
+    height: 24px;
+  }
+  html.ios-m label:has(> input[type='checkbox']),
+  html.ios-m label:has(> input[type='radio']) {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding-right: 4px;
+  }
+
+  /* 3. 标题与说明字 */
+  html.ios-m .box h3 {
+    display: block;
+    font-size: 14.5px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    line-height: 1.45;
+  }
+  html.ios-m .box > header {
+    padding: 13px 15px;
+  }
+  html.ios-m .box > header .note,
+  html.ios-m .box > header .hint {
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  html.ios-m .hint,
+  html.ios-m .note,
+  html.ios-m .subtext,
+  html.ios-m .k {
+    color: var(--ink-2);
+  }
+  html.ios-m .d,
+  html.ios-m .empty,
+  html.ios-m .us-empty,
+  html.ios-m .pk-expiry-empty {
+    color: var(--ink-2);
+  }
+  html.ios-m th {
+    color: var(--ink-2);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  /* 4. 统计卡 */
+  html.ios-m .stats {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  html.ios-m .stat {
+    padding: 12px 14px;
+  }
+  html.ios-m .stat .v,
+  html.ios-m .stat b,
+  html.ios-m .stat strong {
+    font-size: 20px;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* 5. 窄表（≤5 列）：取消 table.acc 的 640px 下限 */
+  html.ios-m table.fit {
     min-width: 0 !important;
     width: 100% !important;
+    table-layout: auto;
   }
-  table.fit th,
-  table.fit td {
-    padding: 6px 6px !important;
+  html.ios-m table.fit th,
+  html.ios-m table.fit td {
+    padding: 8px 7px !important;
     font-size: 12px !important;
+    line-height: 1.45;
     white-space: normal !important;
     word-break: break-word;
   }
+  html.ios-m table.fit th {
+    font-size: 10.5px !important;
+  }
+  html.ios-m table.fit td.num,
+  html.ios-m table.fit th.num {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  html.ios-m table.fit tbody tr:nth-child(even) td {
+    background: color-mix(in srgb, var(--line-soft) 55%, transparent);
+  }
+  html.ios-m .tbl-wrap {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    border-radius: 10px;
+  }
 
-  /* 5 —— 列多的表格：两列网格卡片。一行一条比竖着堆省一半屏 */
-  table.as-cards {
+  /* 6. 宽表（≥6 列）：两列卡片，JS 负责打 data-role / data-label */
+  html.ios-m table.as-cards {
     display: block;
     width: 100% !important;
     min-width: 0 !important;
   }
-  table.as-cards thead {
+  html.ios-m table.as-cards thead {
     display: none;
   }
-  table.as-cards tbody {
+  html.ios-m table.as-cards tbody {
     display: block;
     min-width: 0 !important;
   }
-  table.as-cards tr {
+  html.ios-m table.as-cards tr {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
-    gap: 6px 12px;
+    gap: 9px 14px;
     width: 100% !important;
     min-width: 0 !important;
-    margin: 0 0 8px;
-    padding: 10px 12px !important;
-    background: var(--surface, #fff);
-    border: 1px solid var(--line, #e2e5ec);
+    margin: 0 0 10px;
+    padding: 13px 14px !important;
+    background: var(--surface);
+    border: 1px solid var(--line);
     border-radius: 12px;
   }
-  table.as-cards td {
+  html.ios-m table.as-cards td {
     display: block !important;
     min-width: 0;
     padding: 0 !important;
     border: 0;
-    font-size: 12.5px;
-    line-height: 1.5;
+    font-size: 13px;
+    line-height: 1.45;
     text-align: left !important;
     white-space: normal !important;
     overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
   }
-  table.as-cards td::before {
+  html.ios-m table.as-cards td[data-role='field']::before {
     content: attr(data-label);
     display: block;
-    margin-bottom: 1px;
-    color: #8b93a7;
-    font-size: 10.5px;
+    margin-bottom: 2px;
+    color: var(--ink-2);
+    font-size: 11px;
+    font-weight: 500;
     line-height: 1.3;
   }
-  /* 第一列当卡片标题 */
-  table.as-cards td:first-child {
+  html.ios-m table.as-cards td[data-role='title'] {
     grid-column: 1 / -1;
-    padding-bottom: 5px !important;
-    margin-bottom: 2px !important;
-    border-bottom: 1px dashed var(--line, #e2e5ec);
-    font-size: 13.5px;
-    font-weight: 600;
+    padding-bottom: 9px !important;
+    margin-bottom: 1px;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 14.5px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    color: var(--ink);
   }
-  table.as-cards td:first-child::before {
+  html.ios-m table.as-cards td[data-role='title']::before {
     display: none;
   }
-  /* 装饰列与操作列占满整行 */
-  table.as-cards td.mark {
+  html.ios-m table.as-cards td[data-role='mark'] {
     display: none !important;
   }
-  table.as-cards td.c-acts {
+  html.ios-m table.as-cards td[data-role='acts'] {
     grid-column: 1 / -1;
+    display: flex !important;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 6px !important;
+    border-top: 1px solid var(--line-soft);
   }
-  table.as-cards td.c-acts button {
-    width: 100%;
+  html.ios-m table.as-cards td[data-role='acts'] button {
+    min-width: 44px;
+  }
+  html.ios-m table.as-cards tr[data-empty='1'] {
+    display: block !important;
+  }
+  html.ios-m table.as-cards tr[data-empty='1'] td {
+    text-align: center !important;
+    color: var(--ink-2);
+    padding: 14px 0 !important;
   }
 
-  /* 6 —— 配置页折叠：八个分区一共 8800px，手机上要滑十几屏 */
-  .box.collapsed > *:not(header) {
+  /* 7. 胶囊 */
+  html.ios-m table.as-cards td .pill,
+  html.ios-m table.fit td .pill {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 9px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  /* 8. 抽屉 */
+  html.ios-m .nav {
+    width: min(292px, 80vw) !important;
+    padding: 12px 10px calc(14px + env(safe-area-inset-bottom));
+  }
+  html.ios-m .nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: 9px;
+    font-size: 14px;
+  }
+  html.ios-m .nav a.on {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* 9. 弹窗 */
+  html.ios-m .veil.on {
+    padding: 16px 14px calc(16px + env(safe-area-inset-bottom));
+    align-items: flex-end;
+  }
+  html.ios-m .dlg {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(100vh - 120px);
+    border-radius: 16px;
+  }
+  html.ios-m .dlg header {
+    padding: 15px 16px 12px;
+  }
+  html.ios-m .dlg .body {
+    padding: 14px 16px;
+  }
+  html.ios-m .dlg footer {
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  }
+
+  /* 10. 配置页折叠 */
+  html.ios-m .box.collapsed > *:not(header) {
     display: none !important;
   }
-  .box > header h3::before {
-    content: '▾';
-    display: inline-block;
-    width: 14px;
-    margin-right: 4px;
-    color: #8b93a7;
-    font-size: 11px;
-    transition: transform 0.15s;
-  }
-  .box.collapsed > header h3::before {
-    content: '▸';
-  }
-  .box > header {
+  html.ios-m .box > header {
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    min-height: 46px;
   }
-  .box > header h3 {
+  html.ios-m .box > header h3 {
     display: flex;
-    align-items: baseline;
+    align-items: center;
+    gap: 7px;
   }
-  .box > header h3::before {
+  html.ios-m .box > header h3::before {
+    content: '';
     flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    border-right: 1.6px solid var(--ink-3);
+    border-bottom: 1.6px solid var(--ink-3);
+    transform: rotate(45deg) translateY(-2px);
+    transition: transform 0.16s ease;
+  }
+  html.ios-m .box.collapsed > header h3::before {
+    transform: rotate(-45deg);
+  }
+}
+
+/* 横屏（852×393）：仍是桌面侧栏布局，只把纵向留白收紧 */
+@media (max-width: 960px) and (max-height: 480px) {
+  html.ios-m .topbar {
+    min-height: 42px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+  html.ios-m .main {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+  html.ios-m .box > header {
+    padding: 9px 14px;
+  }
+  html.ios-m .stat {
+    padding: 9px 12px;
   }
 }
