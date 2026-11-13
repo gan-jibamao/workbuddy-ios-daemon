@@ -390,3 +390,15 @@ html.ios-m body .box > header .note {
     padding: 9px 12px;
   }
 }
+
+/* 深色主题的对比度补丁（实测）：--accent #5b7cfa 偏亮，
+   白字落在主按钮上只有 3.68:1；胶囊的 accent 文字落在 13% 底色上也只 4.17。
+   各压深/提亮一档，拉到 4.5 以上，肉眼几乎看不出差别。 */
+html.ios-m[data-theme='dark'] body button.primary,
+html.ios-m[data-theme='dark'] body button.xs.primary {
+  background: color-mix(in srgb, var(--accent) 84%, #000);
+}
+html.ios-m[data-theme='dark'] body .chip.on,
+html.ios-m[data-theme='dark'] body .pill.on {
+  color: color-mix(in srgb, var(--accent) 78%, #fff);
+}
