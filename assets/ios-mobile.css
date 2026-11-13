@@ -26,6 +26,10 @@ html.ios-m body .box > header .note {
   html.ios-m body {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* 面板把说明字、图例、次要数值都放在 --ink-3（白底 3.08:1 / 深底 3.82:1）。
+       手机上这些字号只有 10.5~12px，逐类去追不如直接把 token 抬一档：
+       层级仍靠字号与字重区分，对比度全部 ≥4.5。 */
+    --ink-3: var(--ink-2);
   }
   html.ios-m body .shell,
   html.ios-m body .main {
@@ -401,4 +405,32 @@ html.ios-m[data-theme='dark'] body button.xs.primary {
 html.ios-m[data-theme='dark'] body .chip.on,
 html.ios-m[data-theme='dark'] body .pill.on {
   color: color-mix(in srgb, var(--accent) 78%, #fff);
+}
+
+/* 余额趋势的图例是单行 flex，6 个账号就把 331px 的容器撑到 482px。 */
+html.ios-m body .legend {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  width: auto !important;
+  max-width: 100%;
+}
+html.ios-m body .legend .lg-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 10 列以上的表（请求事件 13 列 / 余额趋势 11 列）用三列网格，
+   否则每张卡片要 400px 以上，100 行就是四万像素。 */
+html.ios-m body table.as-cards.dense tr {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px 12px;
+}
+html.ios-m body table.as-cards.dense td {
+  font-size: 12.5px;
+}
+html.ios-m body table.as-cards.dense td[data-role='title'] {
+  font-size: 13.5px;
+  padding-bottom: 7px !important;
 }

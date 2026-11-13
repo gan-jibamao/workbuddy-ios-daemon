@@ -34,11 +34,14 @@
     var labels = headLabels(table);
     if (!labels || labels.length < CARD_MIN) {
       table.classList.remove('as-cards');
+      table.classList.remove('dense');
       table.classList.add('fit');
       return;
     }
     table.classList.add('as-cards');
     table.classList.remove('fit');
+    /* 列特别多（请求事件 13 列、余额趋势 11 列）用三列网格，否则卡片太高 */
+    table.classList.toggle('dense', labels.length >= 10);
 
     var bodies = table.tBodies;
     for (var b = 0; b < bodies.length; b++) {
