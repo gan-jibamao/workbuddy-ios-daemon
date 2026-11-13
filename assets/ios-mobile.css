@@ -434,3 +434,56 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
   font-size: 13.5px;
   padding-bottom: 7px !important;
 }
+
+/* ── 真实数据复核后补的语义色 ─────────────────────────────────────────
+   面板里成片的说明字、事件徽标、缓存命中率用的是 Tailwind 600 档色值，
+   11~12px 字号下在各自底色上只有 3.0~4.2:1。这里按主题各给一套 ≥4.5 的等价色，
+   只动文字色，不动底色，视觉上仍是同一族颜色。 */
+
+@media (max-width: 760px) {
+  /* 浅色：ok/warn/bad 压深一档 */
+  html.ios-m[data-theme='light'] body {
+    --ok: #0b7a4d;
+    --warn: #8a5a0c;
+    --bad: #b3271f;
+  }
+
+  /* 深色：accent 提亮一档（做文字时才够 4.5）；主按钮底色相应压深，白字仍 ≥4.5 */
+  html.ios-m[data-theme='dark'] body {
+    --accent: #6d8bff;
+  }
+  html.ios-m[data-theme='dark'] body button.primary,
+  html.ios-m[data-theme='dark'] body button.xs.primary {
+    background: color-mix(in srgb, var(--accent) 78%, #000);
+  }
+
+  /* 事件页的语气徽标 */
+  html.ios-m[data-theme='light'] body .req-tag,
+  html.ios-m[data-theme='light'] body .tok-in {
+    color: #0369a1;
+  }
+  html.ios-m[data-theme='light'] body .tok-out {
+    color: #15803d;
+  }
+  html.ios-m[data-theme='light'] body .tok-think {
+    color: #7e22ce;
+  }
+  html.ios-m[data-theme='dark'] body .req-tag,
+  html.ios-m[data-theme='dark'] body .tok-in {
+    color: #38bdf8;
+  }
+  html.ios-m[data-theme='dark'] body .tok-out {
+    color: #4ade80;
+  }
+  html.ios-m[data-theme='dark'] body .tok-think {
+    color: #c084fc;
+  }
+
+  /* 缓存命中率（琥珀色） */
+  html.ios-m[data-theme='light'] body .cache-hit {
+    color: #b45309;
+  }
+  html.ios-m[data-theme='dark'] body .cache-hit {
+    color: #fbbf24;
+  }
+}
