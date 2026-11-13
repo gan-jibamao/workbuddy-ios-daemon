@@ -1,0 +1,143 @@
+/* ios-mobile.css —— 面板在 iPhone 上的排版修正。
+ *
+ * 由 CI 内联进 internal/panel/index.html 的 <head>（见 build.yml 的 inject 步骤），
+ * 不改上游源码；上游下次改动面板也不会冲突。
+ *
+ * 只做四件事，全部可量测：
+ *   1. 卡片标题里的长提示不再被 .box 的 overflow:hidden 裁掉
+ *   2. 输入控件 >=16px，iOS 聚焦时不再自动放大整页
+ *   3. 触控目标 >=34px，刘海/手势条留安全区
+ *   4. 6 列以上的表格转卡片（配合 ios-mobile.js 打 data-label）
+ */
+
+@media (max-width: 760px) {
+  html,
+  body {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* 1 —— 标题与提示换行。桌面布局把它们压在一行，手机上会被裁掉半句。 */
+  .box h3 {
+    display: block;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    line-height: 1.45;
+  }
+  .box h3 .hint,
+  .hint {
+    display: block;
+    margin-top: 3px;
+    line-height: 1.55;
+    white-space: normal !important;
+  }
+
+  /* 2 —— 16px 是 Safari 不触发自动放大的下限。 */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* 3 —— 触控目标与安全区。 */
+  button,
+  .btn {
+    min-height: 34px;
+  }
+  button.icon {
+    min-width: 34px;
+  }
+  .nav {
+    width: min(300px, 84vw) !important;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+  .main {
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+  .topbar {
+    padding-top: env(safe-area-inset-top);
+  }
+  .topbar h2 {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* 4 —— 仍是表格的那些（列少）：横向可滑，首列冻结，滑到右边也知道是哪一行。 */
+  .tbl-wrap {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+  .tbl-wrap th:first-child,
+  .tbl-wrap td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--surface, #fff);
+    box-shadow: 1px 0 0 var(--line, #e2e5ec);
+  }
+
+  /* 5 —— 列多的表格转卡片（ios-mobile.js 负责给 td 打 data-label）。 */
+  table.as-cards {
+    display: block;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  table.as-cards thead {
+    display: none;
+  }
+  table.as-cards tbody {
+    display: block;
+    min-width: 0 !important;
+  }
+  table.as-cards tr {
+    display: block;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 0 8px;
+    padding: 9px 12px;
+    background: var(--surface, #fff);
+    border: 1px solid var(--line, #e2e5ec);
+    border-radius: 12px;
+  }
+  table.as-cards td {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 1.5px 0;
+    border: 0;
+    font-size: 12.5px;
+    line-height: 1.6;
+    text-align: right;
+    white-space: normal;
+  }
+  table.as-cards td::before {
+    content: attr(data-label);
+    flex: 1 1 auto;
+    color: #6b7280;
+    font-size: 12px;
+    text-align: left;
+  }
+  /* 第一列（账号/模型名）当卡片标题：加粗、不显标签、单独一行。 */
+  table.as-cards td:first-child {
+    display: block;
+    font-weight: 600;
+    font-size: 13.5px;
+    text-align: left;
+    padding-bottom: 4px;
+    margin-bottom: 3px;
+    border-bottom: 1px dashed var(--line, #e2e5ec);
+  }
+  table.as-cards td:first-child::before {
+    content: '';
+  }
+  /* 纯装饰/占位列不占位。 */
+  table.as-cards td.mark,
+  table.as-cards td.c-acts {
+    min-height: 0;
+  }
+  table.as-cards td.mark {
+    display: none;
+  }
+}
