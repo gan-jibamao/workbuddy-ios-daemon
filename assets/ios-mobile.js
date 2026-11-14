@@ -230,6 +230,33 @@
       : '其余 ' + (tiles.length - keep) + ' 项指标 · 展开';
   }
 
+  /* 下拉按文字实测宽度定尺：面板各处 select 宽度是写死的（「全部档位」73px），
+     加上我们自绘的箭头后，末字正好压在箭头上。
+     用内联 !important 写 padding 与 min-width，绕开所有样式表层的特异性打架。 */
+  function fitSelects() {
+    var cv = document.createElement('canvas').getContext('2d');
+    var sels = document.querySelectorAll('section.view select');
+    for (var i = 0; i < sels.length; i++) {
+      var s = sels[i];
+      var cs = getComputedStyle(s);
+      if (cs.display === 'none' || s.getBoundingClientRect().width === 0) continue;
+      s.style.setProperty('padding-left', '10px', 'important');
+      s.style.setProperty('padding-right', '30px', 'important');
+      s.style.setProperty('height', '34px', 'important');
+      s.style.setProperty('border-radius', '17px', 'important');
+      var opt = s.options[s.selectedIndex];
+      var txt = opt ? String(opt.text || '').trim() : '';
+      if (!txt) continue;
+      cv.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+      var need = Math.ceil(cv.measureText(txt).width) + 10 + 30 + 2;
+      if (s.getBoundingClientRect().width < need) {
+        s.style.setProperty('min-width', need + 'px', 'important');
+      } else {
+        s.style.removeProperty('min-width');
+      }
+    }
+  }
+
   function foldSkipped() {
     var view = document.getElementById('view-taskscenter');
     if (!view) return;
@@ -290,6 +317,7 @@
     foldConfig();
     foldSkipped();
     foldTiles('bhStats', 4);
+    fitSelects();
     wrapOverflowRows();
   }
 

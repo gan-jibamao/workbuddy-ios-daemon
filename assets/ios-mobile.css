@@ -1426,3 +1426,20 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     margin-right: 6px;
   }
 }
+
+/* 弹层底栏：5 个按钮总宽 387px 挤 363px，「关闭」被推出屏幕（x=366..417）。
+   手机端允许换行并右对齐，按钮永远留在屏幕内。 */
+@media (max-width: 760px) {
+  html.ios-m body .veil .dlg footer {
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+    row-gap: 8px;
+  }
+  html.ios-m body .veil .dlg footer .grow {
+    display: none !important;
+  }
+  html.ios-m body .veil .dlg footer > button {
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+}
