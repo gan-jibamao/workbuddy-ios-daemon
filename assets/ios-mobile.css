@@ -2036,3 +2036,23 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     grid-row: 5;
   }
 }
+
+/* ── 两处收尾（截图异常） ────────────────────────────────────
+   1) 锁定行被全局的 `white-space: normal !important` 压掉了 nowrap，
+      两行折成「…（剩余 8时43分）」被截在第二行。这里显式 !important 顶回去。
+   2) 标题格的代理下拉只有 77px 宽，文字 45px + 左 8/右 22 内距，
+      字尾离箭头只剩 4px，实机上读成「默认随机丷」。加宽到 108px。 */
+@media (max-width: 760px) {
+  html.ios-m body #view-accounts table.acc-main td.acc-lock {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    height: 26px !important;
+    line-height: 16px !important;
+    padding: 5px 9px !important;
+  }
+  html.ios-m body #view-accounts td[data-role='title'] .account-proxy select {
+    min-width: 108px !important;
+    width: auto !important;
+  }
+}
