@@ -631,13 +631,17 @@
      实测账号池里 uid=5d731dea 这条没有昵称（UUID 账号，没绑手机），
      请求事件里整格空白，看不出是谁。这里只补显示文本，不动 title。 */
   function labelAccounts() {
+    /* 上游给这条账号的昵称是一个控制字符 0x7F，trim() 清不掉，必须显式剥：
+       textContent="\x7f"、title="\x7f(5d731dea)"，两边都要洗。 */
+    var CTRL = /[\u0000-\u001f\u007f-\u009f\u200b-\u200f\ufeff]/g;
     var spans = document.querySelectorAll('.acct-cell > span[title]');
     for (var i = 0; i < spans.length; i++) {
       var sp = spans[i];
-      if ((sp.textContent || '').trim()) continue;
-      var m = /^\(([^)]+)\)$/.exec(sp.getAttribute('title') || '');
+      if ((sp.textContent || '').replace(CTRL, '').trim()) continue;
+      var raw = (sp.getAttribute('title') || '').replace(CTRL, '').trim();
+      var m = /^\((.+)\)$/.exec(raw);
       if (!m || !m[1]) continue;
-      sp.textContent = 'UID ' + m[1].slice(0, 8);
+      sp.textContent = 'UID ' + m[1].trim().slice(0, 8);
     }
   }
 
