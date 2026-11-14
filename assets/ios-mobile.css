@@ -1857,3 +1857,47 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     background: rgba(255, 255, 255, 0.05) !important;
   }
 }
+
+/* ── 「其余 N 个账号，展开」第三版：脚注链接 ──────────────────
+   前两版（灰底胶囊、虚线分割）都像硬贴上去的一块。
+   这版去掉一切容器感：表格底边一条细实线，下面居中一行灰字 + 小三角，
+   像列表的「查看更多」，不抢数据行的视觉。 */
+@media (max-width: 760px) {
+  html.ios-m body .pk-footer-td {
+    padding: 0 !important;
+    border-top: 1px solid var(--line) !important;
+    background: transparent !important;
+  }
+  html.ios-m body .pk-group-toggle {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: 100% !important;
+    height: 38px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--ink-3) !important;
+    font-size: 12px !important;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    text-align: center !important;
+  }
+  html.ios-m body .pk-group-toggle::after {
+    content: '▾';
+    flex: 0 0 auto;
+    font-size: 9px;
+    opacity: 0.7;
+    transform: translateY(1px);
+  }
+  html.ios-m body .pk-group-toggle:active {
+    color: var(--accent) !important;
+  }
+  html.ios-m body .pk-group-toggle:active::after {
+    opacity: 1;
+  }
+}

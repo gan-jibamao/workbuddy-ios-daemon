@@ -285,6 +285,20 @@
     }
   }
 
+  /* 「其余 N 个账号，展开」在表格里是一个 td 里的按钮。给它的父 td 打标，
+     把 td 自己的内边距清掉，展开条才能贴着表格底边做成一条干净的脚注行。 */
+  function markGroupToggles() {
+    var ts = document.querySelectorAll('.pk-group-toggle');
+    for (var i = 0; i < ts.length; i++) {
+      var td = ts[i].parentNode;
+      if (td && td.tagName === 'TD') {
+        td.classList.add('pk-footer-td');
+        /* 表格的 td 有 14px 上下内距，不清掉这条脚注行会比数据行还高 */
+        if (td.style.padding !== '0px') td.style.setProperty('padding', '0', 'important');
+      }
+    }
+  }
+
   /* 余额趋势「按账号」卡：净变化按正负上色，和今日/昨日同一套语义色。 */
   function decorateBalhist() {
     var t = document.querySelector('#view-balhist table');
@@ -369,6 +383,7 @@
     foldTiles('bhStats', 5); /* 主卡 + 净变化 + 3 个小指标，正好 5 格，不折叠 */
     fitSelects();
     decorateBalhist();
+    markGroupToggles();
     wrapOverflowRows();
   }
 
