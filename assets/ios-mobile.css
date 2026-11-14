@@ -1901,3 +1901,18 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     opacity: 1;
   }
 }
+
+/* 账号卡里禁止一切动画/过渡：面板的轮询重绘叠加过渡会让卡片闪一下 */
+@media (max-width: 760px) {
+  html.ios-m body #view-accounts table.as-cards *,
+  html.ios-m body #view-accounts table.as-cards *::before,
+  html.ios-m body #view-accounts table.as-cards *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  html.ios-m body #view-accounts td[data-role='title'] .account-proxy select {
+    width: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+}

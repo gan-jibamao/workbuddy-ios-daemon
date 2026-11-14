@@ -236,6 +236,9 @@
       var s = sels[i];
       var cs = getComputedStyle(s);
       if (cs.display === 'none' || s.getBoundingClientRect().width === 0) continue;
+      /* 账号卡标题格里那个「代理」下拉不参与定尺：它的 min-width 一变，
+         整张六列网格的列宽就会重算，屏幕上看就是一闪。 */
+      if (s.closest && s.closest("td[data-role='title']")) continue;
       /* 只在值不同的时候写：反复 set/remove 会让布局每轮抖一次 */
       if (cs.paddingLeft !== '10px') s.style.setProperty('padding-left', '10px', 'important');
       if (cs.paddingRight !== '30px') s.style.setProperty('padding-right', '30px', 'important');
