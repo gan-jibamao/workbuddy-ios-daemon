@@ -593,7 +593,31 @@
     }, 30);
   }
 
+  /* 触感层：iOS 上 `:active` 只在文档挂过 touchstart 监听时才生效（WebKit 的
+     老规矩），这里补一个空监听把 :active 激活；再给按钮类元素加 .is-press，
+     保证程序化点击和 pointer 事件下也有同样的按压反馈。 */
+  var pressOwner = null;
+  function bindPress() {
+    document.addEventListener('touchstart', function () {}, { passive: true });
+    document.addEventListener('pointerdown', function (ev) {
+      var t = ev.target && ev.target.closest
+        ? ev.target.closest('button, .tab, .chip, .nav a, summary')
+        : null;
+      if (!t || t.disabled) return;
+      if (pressOwner) pressOwner.classList.remove('is-press');
+      pressOwner = t;
+      t.classList.add('is-press');
+      window.setTimeout(function () {
+        if (pressOwner === t) {
+          t.classList.remove('is-press');
+          pressOwner = null;
+        }
+      }, 220);
+    }, { passive: true });
+  }
+
   function start() {
+    bindPress();
     sweep();
     new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
     /* 面板重载或外部脚本改写 <html> 的 class 时补回作用域 */
