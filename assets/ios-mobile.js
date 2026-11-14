@@ -282,6 +282,9 @@
       }
     }
     foldConfig();
+    foldSkipped();
+    foldTiles('bhStats', 4);
+    wrapOverflowRows();
   }
 
   /* 用 setTimeout 而不是 requestAnimationFrame：面板常被切到后台标签页，
