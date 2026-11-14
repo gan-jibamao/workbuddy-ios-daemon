@@ -2082,3 +2082,56 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     justify-content: center;
   }
 }
+
+/* ── 请求事件日志：筛选区排整齐 ───────────────────────────────
+   -66 用 flex 44% 让每组自己撑，实测量出来 169/169/266/290 四个宽度，
+   按钮被挤在缝隙里 —— 就是「乱了」。改成两列网格，每格等宽、按钮各占一格。 */
+@media (max-width: 760px) {
+  html.ios-m body #view-events .events-filter-bar {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    align-items: end;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+  html.ios-m body #view-events .events-filter-group {
+    display: block !important;
+    order: 1;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex: none !important;
+  }
+  html.ios-m body #view-events .events-filter-group > label {
+    display: block;
+    margin: 0 0 3px;
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+  html.ios-m body #view-events .events-filter-group > select {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  html.ios-m body #view-events .events-filter-bar > button {
+    order: 2;
+    width: 100% !important;
+  }
+  html.ios-m body #view-events .events-filter-bar > .grow {
+    display: none !important;
+  }
+  /* 头部：标题独占一行，两个动作按钮右对齐一行 */
+  html.ios-m body #view-events .events-title-wrapper {
+    flex: 1 1 100% !important;
+  }
+  html.ios-m body #view-events .events-actions {
+    flex: 1 1 100% !important;
+    display: flex !important;
+    gap: 8px !important;
+    justify-content: flex-end;
+  }
+  html.ios-m body #view-events .events-actions > * {
+    flex: 0 0 auto;
+  }
+}
