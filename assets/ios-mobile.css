@@ -1280,7 +1280,7 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     color: var(--ink-1);
     background: #ffffff;
   }
-  html.ios-m.dark body select option {
+  html.ios-m[data-theme="dark"] body select option {
     color: #e8e8ec;
     background: #1c1c22;
   }
@@ -1324,7 +1324,7 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     font-size: 12px !important;
     text-align: center;
   }
-  html.ios-m.dark body .pk-group-toggle {
+  html.ios-m[data-theme="dark"] body .pk-group-toggle {
     background: rgba(255, 255, 255, 0.06) !important;
   }
 }
@@ -1383,7 +1383,7 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     color: var(--ink-2);
     font-size: 11.5px;
   }
-  html.ios-m.dark body .stats .st-more {
+  html.ios-m[data-theme="dark"] body .stats .st-more {
     background: rgba(255, 255, 255, 0.06);
   }
 
@@ -1504,7 +1504,7 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     background: rgba(0, 0, 0, 0.03) !important;
     border: 1px solid var(--line) !important;
   }
-  html.ios-m.dark body #bhStats .st.st-delta {
+  html.ios-m[data-theme="dark"] body #bhStats .st.st-delta {
     background: rgba(255, 255, 255, 0.05) !important;
   }
   html.ios-m body #bhStats .st.st-delta .v {
@@ -1518,10 +1518,10 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
   html.ios-m body #bhStats .st.st-delta.down .v {
     color: #c0392b;
   }
-  html.ios-m.dark body #bhStats .st.st-delta.up .v {
+  html.ios-m[data-theme="dark"] body #bhStats .st.st-delta.up .v {
     color: #4ecb7f;
   }
-  html.ios-m.dark body #bhStats .st.st-delta.down .v {
+  html.ios-m[data-theme="dark"] body #bhStats .st.st-delta.down .v {
     color: #ff7a6b;
   }
 }
@@ -1621,10 +1621,10 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     color: #c0392b !important;
     font-weight: 620;
   }
-  html.ios-m.dark body #view-balhist td[data-label='净变化'].pos {
+  html.ios-m[data-theme="dark"] body #view-balhist td[data-label='净变化'].pos {
     color: #4ecb7f !important;
   }
-  html.ios-m.dark body #view-balhist td[data-label='净变化'].neg {
+  html.ios-m[data-theme="dark"] body #view-balhist td[data-label='净变化'].neg {
     color: #ff7a6b !important;
   }
 }
@@ -1853,7 +1853,7 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
   html.ios-m body .pk-group-toggle:active {
     background: rgba(0, 0, 0, 0.03) !important;
   }
-  html.ios-m.dark body .pk-group-toggle:active {
+  html.ios-m[data-theme="dark"] body .pk-group-toggle:active {
     background: rgba(255, 255, 255, 0.05) !important;
   }
 }
@@ -2016,7 +2016,7 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  html.ios-m.dark body #view-accounts table.acc-main td.acc-lock {
+  html.ios-m[data-theme="dark"] body #view-accounts table.acc-main td.acc-lock {
     background: rgba(217, 164, 0, 0.16);
   }
   html.ios-m body #view-accounts table.acc-main td.acc-lock::before {
