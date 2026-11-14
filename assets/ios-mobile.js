@@ -288,6 +288,18 @@
     }
   }
 
+  /* 余额趋势「按账号」卡：净变化按正负上色，和今日/昨日同一套语义色。 */
+  function decorateBalhist() {
+    var t = document.querySelector('#view-balhist table');
+    if (!t) return;
+    var cells = t.querySelectorAll('td[data-label="净变化"]');
+    for (var i = 0; i < cells.length; i++) {
+      var s = (cells[i].textContent || '').trim();
+      cells[i].classList.toggle('pos', /^\+/.test(s));
+      cells[i].classList.toggle('neg', /^-/.test(s));
+    }
+  }
+
   function foldSkipped() {
     var view = document.getElementById('view-taskscenter');
     if (!view) return;
@@ -350,6 +362,7 @@
     decorateStats();
     foldTiles('bhStats', 5); /* 主卡 + 净变化 + 3 个小指标，正好 5 格，不折叠 */
     fitSelects();
+    decorateBalhist();
     wrapOverflowRows();
   }
 

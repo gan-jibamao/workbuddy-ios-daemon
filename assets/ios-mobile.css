@@ -1588,3 +1588,43 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     padding: 0 8px !important;
   }
 }
+
+/* ── 余额趋势「按账号」卡 ─────────────────────────────────────
+   消耗* / 到账* 每格是两行数字（上行今日、下行本月），手机上 tooltip 看不到，
+   读到就是两个没头没脑的数（42 上面、987 下面）。改成一行并标注「今 / 本」。 */
+@media (max-width: 760px) {
+  html.ios-m body #view-balhist table.as-cards td.fl .fl-row {
+    display: inline !important;
+  }
+  html.ios-m body #view-balhist table.as-cards td.fl .fl-row:not(.fl-sub)::after {
+    content: ' 今';
+    font-size: 9px;
+    color: var(--ink-3);
+  }
+  html.ios-m body #view-balhist table.as-cards td.fl .fl-sub::before {
+    content: '/ ';
+    color: var(--ink-3);
+  }
+  html.ios-m body #view-balhist table.as-cards td.fl .fl-sub::after {
+    content: ' 本';
+    font-size: 9px;
+    color: var(--ink-3);
+  }
+  html.ios-m body #view-balhist table.as-cards td.num {
+    font-variant-numeric: tabular-nums;
+  }
+  html.ios-m body #view-balhist td[data-label='净变化'].pos {
+    color: #17864a !important;
+    font-weight: 620;
+  }
+  html.ios-m body #view-balhist td[data-label='净变化'].neg {
+    color: #c0392b !important;
+    font-weight: 620;
+  }
+  html.ios-m.dark body #view-balhist td[data-label='净变化'].pos {
+    color: #4ecb7f !important;
+  }
+  html.ios-m.dark body #view-balhist td[data-label='净变化'].neg {
+    color: #ff7a6b !important;
+  }
+}
