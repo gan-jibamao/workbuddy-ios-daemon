@@ -13,6 +13,9 @@
   var CARD_MIN = 5;
   /* 紧凑行里优先展示的字段 */
   var KEEP = /结果|状态|积分|额度|余额|模型|用量|次数|耗时|延时|数量/;
+  /* 「来源 / 账号」是这条记录属于谁的唯一标识，永远保留：请求事件 13 列里
+     第 2 列就是它，被折进 more 之后整行就只剩「模型 + 结果」，看不出谁在用。 */
+  var ALWAYS = /^(来源|账号|帐号)$/;
   var ROOT = document.documentElement;
 
   /* 全部移动样式挂在 html.ios-m 下：面板的 `.xs{height:28px}` 一类类选择器
@@ -51,6 +54,13 @@
     for (var tb = 0; tb < table.tBodies.length; tb++) totalRows += table.tBodies[tb].rows.length;
     var compact = totalRows > 12;
     table.classList.toggle('compact', compact);
+
+    /* 有账号列的表多给一格预算：账号 + 模型 + 结果正好三格一行 */
+    var hasId = false;
+    for (var li = 0; li < labels.length; li++) {
+      if (ALWAYS.test(labels[li])) { hasId = true; break; }
+    }
+    var budget = hasId ? 3 : 2;
 
     var bodies = table.tBodies;
     for (var b = 0; b < bodies.length; b++) {
@@ -92,7 +102,7 @@
             td.dataset.label = labels[c] || '';
             if (compact) {
               /* 一行只保留两个关键字段，多了就压成三行以上、页面立刻变长 */
-              var keep = KEEP.test(td.dataset.label) && kept < 2;
+              var keep = (ALWAYS.test(td.dataset.label) || KEEP.test(td.dataset.label)) && kept < budget;
               td.dataset.prio = keep ? 'keep' : 'more';
               if (keep) kept++;
             } else if (td.dataset.prio) {
