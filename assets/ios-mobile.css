@@ -1260,7 +1260,8 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     appearance: none !important;
     height: 34px !important;
     min-height: 34px !important;
-    padding: 0 26px 0 12px !important;
+    min-width: 96px;
+    padding: 0 22px 0 10px !important;
     border: 1px solid var(--line) !important;
     border-radius: 17px !important;
     background-color: transparent !important;
@@ -1321,5 +1322,29 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
   }
   html.ios-m.dark body .pk-group-toggle {
     background: rgba(255, 255, 255, 0.06) !important;
+  }
+}
+
+/* 溢出的 flex 工具条：允许换行（由 wrapOverflowRows 打标） */
+@media (max-width: 760px) {
+  html.ios-m body .ios-wrap {
+    flex-wrap: wrap !important;
+    height: auto !important;
+    min-height: 0 !important;
+    align-content: flex-start;
+    row-gap: 6px;
+  }
+}
+
+/* 筛选条 .fbar 默认是横向滚动条（overflow:auto），一宽就吃字、末尾控件跑出卡片。
+   手机上改成换行排布，宁可两行也不要横向滚。 */
+@media (max-width: 760px) {
+  html.ios-m body .fbar {
+    flex-wrap: wrap !important;
+    overflow-x: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    align-content: flex-start;
+    row-gap: 6px;
   }
 }

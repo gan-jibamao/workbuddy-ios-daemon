@@ -168,6 +168,31 @@
   /* 任务中心：把「跳过 / 已完成」的行收起来。
      一个 qgroup 里十几行、绝大多数是「跳过 · 任务已完成或尚未解锁（快照）」，
      留着就是纯噪音；每组只显示能动的，其余收成一行。 */
+  /* 自动换行：整站有大量 flex + nowrap 的工具条，子元素一多就横向溢出，
+     后面的控件直接跑到卡片外面、压在别的东西上（请求记录那条 490px 塞 367px）。
+     统一扫一遍：能滚动的不动，其它溢出的一律允许换行。 */
+  function wrapOverflowRows() {
+    var views = document.querySelectorAll('section.view');
+    for (var v = 0; v < views.length; v++) {
+      var nodes = views[v].querySelectorAll('div, header, form, span, p');
+      for (var i = 0; i < nodes.length; i++) {
+        var el = nodes[i];
+        var cs = getComputedStyle(el);
+        if (cs.display !== 'flex' && cs.display !== 'inline-flex') {
+          if (el.classList.contains('ios-wrap')) el.classList.remove('ios-wrap');
+          continue;
+        }
+        var scrollable = /auto|scroll/.test(cs.overflowX) || /auto|scroll/.test(cs.overflowY);
+        var over = el.scrollWidth - el.clientWidth;
+        if (!scrollable && over > 2 && cs.flexWrap === 'nowrap') {
+          el.classList.add('ios-wrap');
+        } else if (el.classList.contains('ios-wrap') && over <= 2) {
+          el.classList.remove('ios-wrap');
+        }
+      }
+    }
+  }
+
   function foldSkipped() {
     var view = document.getElementById('view-taskscenter');
     if (!view) return;
