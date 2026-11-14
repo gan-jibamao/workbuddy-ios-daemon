@@ -257,6 +257,37 @@
     }
   }
 
+  /* 余额趋势的指标原来是 9 个同规格小格子平铺：标签 10px、数值 16px，
+     读起来是一串裸数字。这里按语义重新分级：
+     合计 -> 通栏主卡（数值放大）；净变化 -> 带涨跌色的副行；其余 -> 三列小指标。 */
+  function decorateStats() {
+    var box = document.getElementById('bhStats');
+    if (!box) return;
+    var tiles = [].slice.call(box.children).filter(function (c) {
+      return c.classList.contains('st');
+    });
+    for (var i = 0; i < tiles.length; i++) {
+      var t = tiles[i];
+      var kEl = t.querySelector('.k');
+      var vEl = t.querySelector('.v');
+      var label = kEl ? kEl.textContent.trim() : '';
+      var val = vEl ? vEl.textContent.trim() : '';
+      var isTotal = /合计|总额/.test(label);
+      var isDelta = /净变化|变化/.test(label);
+      t.classList.toggle('st-hero', isTotal);
+      t.classList.toggle('st-delta', isDelta);
+      if (isDelta) {
+        t.classList.toggle('up', /^\+/.test(val));
+        t.classList.toggle('down', /^-/.test(val));
+      }
+      if (isTotal) {
+        if (kEl && !kEl.dataset.orig) kEl.dataset.orig = label;
+        if (kEl) kEl.textContent = label.replace(/^当前/, '');
+        if (vEl && !vEl.dataset.unit) { vEl.dataset.unit = '1'; }
+      }
+    }
+  }
+
   function foldSkipped() {
     var view = document.getElementById('view-taskscenter');
     if (!view) return;
@@ -316,7 +347,8 @@
     }
     foldConfig();
     foldSkipped();
-    foldTiles('bhStats', 4);
+    decorateStats();
+    foldTiles('bhStats', 5); /* 主卡 + 净变化 + 3 个小指标，正好 5 格，不折叠 */
     fitSelects();
     wrapOverflowRows();
   }

@@ -1443,3 +1443,128 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     max-width: 100%;
   }
 }
+
+/* ── 余额趋势指标区重排 ───────────────────────────────────────
+   合计 → 通栏主卡（数值 26px）；净变化 → 涨跌色副行；其余 → 三列小指标。 */
+@media (max-width: 760px) {
+  html.ios-m body #bhStats {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+  html.ios-m body #bhStats .st {
+    padding: 10px !important;
+    border-radius: 13px;
+  }
+  html.ios-m body #bhStats .st .k {
+    font-size: 10.5px !important;
+    letter-spacing: 0.02em;
+    color: var(--ink-3);
+  }
+  html.ios-m body #bhStats .st .v {
+    font-size: 15px !important;
+    font-weight: 600;
+  }
+
+  /* 主卡：合计 */
+  html.ios-m body #bhStats .st.st-hero {
+    grid-column: 1 / -1;
+    order: -2;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 14px 12px !important;
+    border-radius: 15px !important;
+    background: linear-gradient(135deg, rgba(88, 120, 255, 0.13), rgba(88, 120, 255, 0.04)) !important;
+    border: 1px solid rgba(88, 120, 255, 0.18) !important;
+  }
+  html.ios-m body #bhStats .st.st-hero .k {
+    font-size: 12px !important;
+    color: var(--ink-2);
+  }
+  html.ios-m body #bhStats .st.st-hero .v {
+    font-size: 26px !important;
+    font-weight: 700;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  /* 净变化：通栏一行，带涨跌色 */
+  html.ios-m body #bhStats .st.st-delta {
+    grid-column: 1 / -1;
+    order: -1;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px !important;
+    border-radius: 12px !important;
+    background: rgba(0, 0, 0, 0.03) !important;
+    border: 1px solid var(--line) !important;
+  }
+  html.ios-m.dark body #bhStats .st.st-delta {
+    background: rgba(255, 255, 255, 0.05) !important;
+  }
+  html.ios-m body #bhStats .st.st-delta .v {
+    font-size: 15px !important;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+  }
+  html.ios-m body #bhStats .st.st-delta.up .v {
+    color: #17864a;
+  }
+  html.ios-m body #bhStats .st.st-delta.down .v {
+    color: #c0392b;
+  }
+  html.ios-m.dark body #bhStats .st.st-delta.up .v {
+    color: #4ecb7f;
+  }
+  html.ios-m.dark body #bhStats .st.st-delta.down .v {
+    color: #ff7a6b;
+  }
+}
+
+/* ── 任务中心工具条：标题 / 两个开关 + 并发 / 四个动作 三行 ─────
+   原来是 标题 + 2 开关 + 并发 + 4 按钮混在一个 flex 流里自然折行，
+   并发那个框被挤到第二行中间，右边留一大块空白，看着像重复了一个空框。 */
+@media (max-width: 760px) {
+  html.ios-m body #view-taskscenter .box > header {
+    align-content: flex-start !important;
+    row-gap: 8px !important;
+  }
+  html.ios-m body #view-taskscenter .box > header > h3 {
+    flex: 1 1 100% !important;
+    order: 1;
+  }
+  html.ios-m body #view-taskscenter .box > header > label.sel-note {
+    order: 2;
+    height: 34px !important;
+    min-height: 34px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    align-self: center !important;
+    gap: 6px;
+    padding: 0 10px !important;
+    border: 1px solid var(--line);
+    border-radius: 17px;
+    font-size: 12px;
+  }
+  html.ios-m body #view-taskscenter .box > header > label.sel-note:last-of-type {
+    order: 3;
+    margin-left: auto;
+  }
+  html.ios-m body #view-taskscenter .box > header > button.xs {
+    order: 4;
+  }
+  html.ios-m body #view-taskscenter #qcConc {
+    width: 62px !important;
+    min-width: 62px !important;
+    height: 30px !important;
+    padding-left: 8px !important;
+    padding-right: 22px !important;
+    border: 0 !important;
+    background-color: transparent !important;
+  }
+}
