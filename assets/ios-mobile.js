@@ -10,7 +10,7 @@
  */
 (function () {
   var MQ = window.matchMedia('(max-width: 760px)');
-  var CARD_MIN = 6;
+  var CARD_MIN = 5;
   var ROOT = document.documentElement;
 
   /* 全部移动样式挂在 html.ios-m 下：面板的 `.xs{height:28px}` 一类类选择器

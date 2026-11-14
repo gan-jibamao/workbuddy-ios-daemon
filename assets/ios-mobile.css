@@ -143,6 +143,9 @@ html.ios-m body .box > header .note {
   }
   html.ios-m body .box > header .note,
   html.ios-m body .box > header .hint {
+    display: block !important;
+    margin: 3px 0 0 !important;
+    font-weight: 400;
     font-size: 11.5px;
     line-height: 1.5;
     color: var(--ink-2);
@@ -199,6 +202,8 @@ html.ios-m body .box > header .note {
   }
   html.ios-m body table.fit th {
     font-size: 10.5px !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
   }
   html.ios-m body table.fit td.num,
   html.ios-m body table.fit th.num {
@@ -358,13 +363,14 @@ html.ios-m body .box > header .note {
     min-height: 46px;
   }
   html.ios-m body .box > header h3 {
-    display: flex;
-    align-items: center;
-    gap: 7px;
+    display: block;
   }
-  html.ios-m body .box > header h3::before {
+  /* 折叠箭头只给配置页用：别的视图没有折叠行为，箭头纯属噪音；
+     而且 h3 一旦改成 flex，标题与长提示会被挤成两条、中文按字折行。 */
+  html.ios-m body #view-config .box > header h3::before {
     content: '';
-    flex: 0 0 auto;
+    display: inline-block;
+    vertical-align: middle;
     width: 7px;
     height: 7px;
     border-right: 1.6px solid var(--ink-3);
@@ -372,7 +378,7 @@ html.ios-m body .box > header .note {
     transform: rotate(45deg) translateY(-2px);
     transition: transform 0.16s ease;
   }
-  html.ios-m body .box.collapsed > header h3::before {
+  html.ios-m body #view-config .box.collapsed > header h3::before {
     transform: rotate(-45deg);
   }
 }
