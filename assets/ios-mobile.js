@@ -469,6 +469,7 @@
   /* ── 执行 ───────────────────────────────────────────────────── */
   function sweep() {
     labelAccounts();
+    patchAccountOptions();
     ensureScope();
     if (!sweep._e) { sweep._e = 1; patchExport(); }
     if (!sweep._v) { sweep._v = 1; window.setTimeout(startVersionWatch, 800); }
@@ -642,6 +643,28 @@
       var m = /^\((.+)\)$/.exec(raw);
       if (!m || !m[1]) continue;
       sp.textContent = 'UID ' + m[1].trim().slice(0, 8);
+    }
+  }
+
+  /* 账号筛选下拉的选项文案是上游原样塞进来的「昵称(uid)」，
+     其中一条昵称是 0x7F，选项显示成「?(5d731dea)」。只改文案，value 不动
+     （筛选是拿 value 跟 e.account 全等比较的，动了就筛不出东西）。 */
+  function patchAccountOptions() {
+    var CTRL = /[\u0000-\u001f\u007f-\u009f\u200b-\u200f\ufeff]/g;
+    var sels = document.querySelectorAll('#view-events select, #view-logs select');
+    for (var i = 0; i < sels.length; i++) {
+      var opts = sels[i].options;
+      for (var j = 0; j < opts.length; j++) {
+        var o = opts[j];
+        var raw = (o.textContent || '').replace(CTRL, '').trim();
+        if (!/\([0-9a-f]{6,12}\)$/i.test(raw)) continue;
+        var m = /^(.*?)\(([0-9a-f]{6,12})\)$/i.exec(raw);
+        var label = (m[1] || '').trim() ? m[1].trim() : 'UID ' + m[2].slice(0, 8);
+        if (o.textContent !== label && !o.dataset.labelled) {
+          o.textContent = label;
+          o.dataset.labelled = '1';
+        }
+      }
     }
   }
 
