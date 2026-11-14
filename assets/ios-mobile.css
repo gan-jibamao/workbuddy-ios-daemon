@@ -1916,3 +1916,57 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     min-width: 0 !important;
   }
 }
+
+/* ── 全站复查修的三处 ───────────────────────────────────────── */
+@media (max-width: 760px) {
+  /* 1) 账号卡标题格的代理下拉只有 26px 高，低于可点击下限 */
+  html.ios-m body #view-accounts td[data-role='title'] .account-proxy select {
+    height: 30px !important;
+    min-height: 30px !important;
+  }
+
+  /* 2) 模型与档位：标题格里一串标签是 inline+nowrap，总宽 247px 撑出 240px 的格子，
+        「思考常开」被顶到 x=415。改成可换行的标签组。 */
+  html.ios-m body #view-models td.who .id {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+    white-space: normal !important;
+    max-width: 100%;
+  }
+  html.ios-m body #view-models td.who .id > .tag {
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+
+  /* 3) 请求事件日志的筛选条：7 个控件 918px 塞 367px 的横滑条，
+       第三组直接跑出屏幕（x=599）。改成两列、标签在上、下拉占满格。 */
+  html.ios-m body #view-events .events-filter-bar {
+    flex-wrap: wrap !important;
+    overflow-x: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    row-gap: 8px;
+    column-gap: 6px;
+    align-content: flex-start;
+  }
+  html.ios-m body #view-events .events-filter-group {
+    flex: 1 1 44% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    display: block !important;
+  }
+  html.ios-m body #view-events .events-filter-group > label {
+    display: block;
+    margin: 0 0 3px;
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+  html.ios-m body #view-events .events-filter-group > select {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  html.ios-m body #view-events .events-filter-bar > button {
+    flex: 0 0 auto;
+  }
+}
