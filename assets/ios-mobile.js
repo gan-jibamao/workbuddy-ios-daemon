@@ -11,6 +11,8 @@
 (function () {
   var MQ = window.matchMedia('(max-width: 760px)');
   var CARD_MIN = 5;
+  /* 紧凑行里优先展示的字段 */
+  var KEEP = /结果|状态|积分|额度|余额|模型|用量|次数|耗时|延时|数量/;
   var ROOT = document.documentElement;
 
   /* 全部移动样式挂在 html.ios-m 下：面板的 `.xs{height:28px}` 一类类选择器
@@ -43,6 +45,13 @@
     /* 列特别多（请求事件 13 列、余额趋势 11 列）用三列网格，否则卡片太高 */
     table.classList.toggle('dense', labels.length >= 10);
 
+    /* 行数多的时候卡片会把页面撑到几万像素：>12 行改用紧凑行，
+       只保留关键字段，其余点开再看。 */
+    var totalRows = 0;
+    for (var tb = 0; tb < table.tBodies.length; tb++) totalRows += table.tBodies[tb].rows.length;
+    var compact = totalRows > 12;
+    table.classList.toggle('compact', compact);
+
     var bodies = table.tBodies;
     for (var b = 0; b < bodies.length; b++) {
       var rows = bodies[b].rows;
@@ -69,8 +78,16 @@
             role = 'field';
           }
           td.dataset.role = role;
-          if (role === 'field') td.dataset.label = labels[c] || '';
-          else if (td.dataset.label) delete td.dataset.label;
+          if (role === 'field') {
+            td.dataset.label = labels[c] || '';
+            if (compact) {
+              td.dataset.prio = KEEP.test(td.dataset.label) ? 'keep' : 'more';
+            } else if (td.dataset.prio) {
+              delete td.dataset.prio;
+            }
+          } else if (td.dataset.label) {
+            delete td.dataset.label;
+          }
         }
       }
     }
@@ -140,13 +157,27 @@
       }
       return;
     }
-    for (i = 0; i < tables.length; i++) shape(tables[i]);
+    for (i = 0; i < tables.length; i++) {
+      shape(tables[i]);
+      if (!tables[i].dataset.tapBound) {
+        tables[i].dataset.tapBound = '1';
+        tables[i].addEventListener('click', onRowClick);
+      }
+    }
     foldConfig();
   }
 
   /* 用 setTimeout 而不是 requestAnimationFrame：面板常被切到后台标签页，
      后台 rAF 会完全暂停，导致 pending 永久卡住、表格再也不打补丁。
      定时器在后台只是降频（约 1s 一次），不会停。 */
+  function onRowClick(ev) {
+    var table = ev.currentTarget;
+    if (!table.classList.contains('compact')) return;
+    if (ev.target.closest('button, a, input, select, textarea')) return;
+    var row = ev.target.closest('tr');
+    if (row) row.classList.toggle('open');
+  }
+
   var pending = false;
   function schedule() {
     if (pending) return;

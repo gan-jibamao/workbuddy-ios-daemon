@@ -493,3 +493,98 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     color: #fbbf24;
   }
 }
+
+/* ── 长列表：紧凑行（>12 行才用，避免每字段一行的卡片把页面撑到几万像素） ── */
+@media (max-width: 760px) {
+  html.ios-m body table.as-cards.compact tr {
+    display: block !important;
+    padding: 8px 12px !important;
+    margin: 0 0 6px !important;
+  }
+  html.ios-m body table.as-cards.compact td {
+    display: inline !important;
+    margin: 0 10px 0 0;
+    padding: 0 !important;
+    border: 0;
+    font-size: 12px;
+    line-height: 1.6;
+    vertical-align: baseline;
+  }
+  html.ios-m body table.as-cards.compact td[data-role='title'] {
+    display: block !important;
+    margin: 0;
+    padding: 0 0 2px !important;
+    border: 0;
+    font-size: 13px !important;
+    font-weight: 650;
+  }
+  html.ios-m body table.as-cards.compact td[data-role='field']::before {
+    content: attr(data-label);
+    display: inline !important;
+    margin-right: 3px;
+    color: var(--ink-2);
+    font-size: 10px;
+  }
+  html.ios-m body table.as-cards.compact td[data-role='mark'] {
+    display: none !important;
+  }
+  html.ios-m body table.as-cards.compact td[data-role='acts'] {
+    display: inline !important;
+    margin: 0;
+  }
+  /* 次要字段默认收起，点一下整行展开 */
+  html.ios-m body table.as-cards.compact tr:not(.open) td[data-prio='more'] {
+    display: none !important;
+  }
+  html.ios-m body table.as-cards.compact tr.open td[data-prio='more'] {
+    display: block !important;
+    margin: 2px 0 0;
+    font-size: 12px;
+  }
+  html.ios-m body table.as-cards.compact tr.open td[data-prio='more']::before {
+    content: attr(data-label);
+    display: inline !important;
+    margin-right: 4px;
+    color: var(--ink-2);
+    font-size: 10px;
+  }
+
+  /* ── 任务中心：每个账号一组卡片，行高压到 48 ── */
+  html.ios-m body .qgroup {
+    margin: 0 0 10px !important;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  html.ios-m body .qgroup > header {
+    padding: 10px 12px !important;
+    background: var(--surface-2, rgba(0, 0, 0, 0.02));
+    border-bottom: 1px solid var(--line-soft);
+  }
+  html.ios-m body .qrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 8px 12px !important;
+    font-size: 12.5px;
+    border-top: 1px solid var(--line-soft);
+  }
+  html.ios-m body .qrow:first-of-type {
+    border-top: 0;
+  }
+  html.ios-m body .qrow > * {
+    min-width: 0;
+  }
+
+  /* ── 图表：宽度不超过容器，高度给个上限 ── */
+  html.ios-m body .box svg {
+    max-width: 100%;
+  }
+  html.ios-m body .box canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
