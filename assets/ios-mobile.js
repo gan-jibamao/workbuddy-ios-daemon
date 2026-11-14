@@ -165,6 +165,46 @@
     foldBoxes('view-packages', 'pkg', 1);
   }
 
+  /* 任务中心：把「跳过 / 已完成」的行收起来。
+     一个 qgroup 里十几行、绝大多数是「跳过 · 任务已完成或尚未解锁（快照）」，
+     留着就是纯噪音；每组只显示能动的，其余收成一行。 */
+  function foldSkipped() {
+    var view = document.getElementById('view-taskscenter');
+    if (!view) return;
+    var groups = view.querySelectorAll('.qgroup');
+    for (var g = 0; g < groups.length; g++) {
+      var group = groups[g];
+      var rows = group.querySelectorAll('.qrow');
+      var skipped = [];
+      for (var r = 0; r < rows.length; r++) {
+        var isSkip = !!rows[r].querySelector('.qdot.skip');
+        rows[r].classList.toggle('tc-skip', isSkip);
+        if (isSkip) skipped.push(rows[r]);
+      }
+      var open = group.dataset.skOpen === '1';
+      for (var k = 0; k < skipped.length; k++) {
+        skipped[k].hidden = !open;
+      }
+      var btn = group.querySelector('.tc-more');
+      if (!skipped.length) {
+        if (btn) btn.remove();
+        continue;
+      }
+      if (!btn) {
+        btn = document.createElement('button');
+        btn.className = 'tc-more';
+        btn.type = 'button';
+        btn.addEventListener('click', function (ev) {
+          var grp = ev.currentTarget.parentNode;
+          grp.dataset.skOpen = grp.dataset.skOpen === '1' ? '0' : '1';
+          sweep();
+        });
+        group.appendChild(btn);
+      }
+      btn.textContent = open ? '收起已跳过' : '其余 ' + skipped.length + ' 项已跳过 · 展开';
+    }
+  }
+
   /* ── 执行 ───────────────────────────────────────────────────── */
   function sweep() {
     ensureScope();

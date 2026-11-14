@@ -1135,3 +1135,28 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     display: none !important;
   }
 }
+
+/* 任务中心的「其余 N 项已跳过」折叠条 */
+@media (max-width: 760px) {
+  html.ios-m body .qgroup .tc-more {
+    display: block;
+    width: calc(100% - 24px);
+    height: 32px;
+    min-height: 32px;
+    margin: 6px 12px 10px;
+    padding: 0 10px;
+    border: 1px dashed var(--line);
+    border-radius: 9px;
+    background: transparent;
+    color: var(--ink-2);
+    font-size: 11.5px;
+    text-align: left;
+  }
+  html.ios-m body .qgroup .tc-more::after {
+    content: '▾';
+    float: right;
+  }
+  html.ios-m body .qrow.tc-skip .msg {
+    display: none;
+  }
+}
