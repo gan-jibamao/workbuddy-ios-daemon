@@ -309,11 +309,9 @@
       var spEl = rl.querySelector('span');
       var model = bEl ? bEl.textContent.trim() : '';
       var rest = spEl ? spEl.textContent.replace(/\s+/g, ' ').trim() : '';
-      /* 整句「预计 2026-11-15 01:40 恢复（剩余 8时43分）」在 341px 里放不下，
-         收成「模型 · 剩余 8时43分」，完整内容留在 title 里。 */
-      var m = /剩余\s*([0-9]+\s*时\s*[0-9]+\s*分|[0-9]+\s*分)/.exec(rest);
-      var txt = model ? (model + (m ? ' · 剩余 ' + m[1].replace(/\s+/g, '') : (rest ? ' · ' + rest : '')))
-                      : rest;
+      /* 保留完整句子（用户要求）：「模型 · 预计 … 恢复（剩余 8时48分）」，
+         341px 放不下就折两行，由 CSS 的 line-clamp 兜住，不做截断改写。 */
+      var txt = model ? (model + (rest ? ' · ' + rest : '')) : rest;
       if (!txt) txt = (rl.textContent || '').replace(/\s+/g, ' ').trim();
       if (!txt) {
         if (cell) cell.remove();

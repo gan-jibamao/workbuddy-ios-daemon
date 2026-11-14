@@ -2044,12 +2044,17 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
       字尾离箭头只剩 4px，实机上读成「默认随机丷」。加宽到 108px。 */
 @media (max-width: 760px) {
   html.ios-m body #view-accounts table.acc-main td.acc-lock {
-    white-space: nowrap !important;
+    /* 完整句子保留，最多折两行（341px 里「预计 2026-11-15 01:40 恢复（剩余 8时48分）」
+       一行放不下，硬 nowrap 会从「剩余 8」处被切断） */
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal !important;
+    word-break: break-word;
     overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    min-height: 24px !important;
     height: auto !important;
-    line-height: 16px !important;
+    min-height: 24px !important;
+    line-height: 15px !important;
     padding: 4px 9px !important;
   }
   html.ios-m body #view-accounts td[data-role='title'] .account-proxy select {
