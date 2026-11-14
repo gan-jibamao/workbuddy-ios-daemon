@@ -920,3 +920,67 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     font-size: 12px !important;
   }
 }
+
+/* ── 展开/收起要真的好用：展开后仍是密排，不是十个字段各占一行 ── */
+@media (max-width: 760px) {
+  html.ios-m body table.as-cards.compact tr.open td[data-prio='more'] {
+    display: inline-block !important;
+    width: auto;
+    max-width: 100%;
+    margin: 2px 10px 0 0;
+    font-size: 12px;
+    vertical-align: baseline;
+  }
+  html.ios-m body table.as-cards.compact tr.open {
+    padding-bottom: 10px !important;
+  }
+  /* 标题里的「时间 · 日期」之间留出分隔 */
+  html.ios-m body table.as-cards.compact td[data-role='title'] > * + * {
+    margin-left: 6px;
+  }
+  html.ios-m body table.as-cards.compact td[data-role='title'] > * + *::before {
+    content: '·';
+    margin-right: 6px;
+    color: var(--ink-3);
+  }
+
+  /* 积分构成的「其余 N 个包」按钮：从大色块改成低调的展开条 */
+  html.ios-m body .pk-group-toggle {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    height: 36px !important;
+    margin-top: 4px;
+    padding: 0 10px !important;
+    border: 1px dashed var(--line) !important;
+    border-radius: 10px;
+    background: transparent !important;
+    color: var(--ink-2) !important;
+    font-size: 11.5px !important;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  html.ios-m body .pk-group-toggle::after {
+    content: '▾';
+    margin-left: auto;
+    flex: 0 0 auto;
+    color: var(--ink-3);
+  }
+
+  /* 折叠后的分区头给一点点击反馈（配置页与积分构成共用） */
+  html.ios-m body .box.collapsed > header h3::after {
+    content: '展开';
+    margin-left: auto;
+    color: var(--ink-3);
+    font-size: 11px;
+    font-weight: 400;
+  }
+  html.ios-m body .box.collapsed > header h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}

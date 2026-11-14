@@ -107,53 +107,60 @@
   /* ── 配置页折叠 ─────────────────────────────────────────────── */
   var STORE = 'wb_mobile_cfg_open';
 
-  function readOpen() {
+  function readOpen(storeKey) {
     try {
-      return JSON.parse(localStorage.getItem(STORE) || '{}') || {};
+      return JSON.parse(localStorage.getItem(STORE + '.' + (storeKey || 'cfg')) || '{}') || {};
     } catch (e) {
       return {};
     }
   }
 
-  function writeOpen(m) {
+  function writeOpen(m, storeKey) {
     try {
-      localStorage.setItem(STORE, JSON.stringify(m));
+      localStorage.setItem(STORE + '.' + (storeKey || 'cfg'), JSON.stringify(m));
     } catch (e) {
       /* 隐私模式写不进去，忽略 */
     }
   }
 
-  function bindHeader(box, key) {
+  function bindHeader(box, key, storeKey) {
     var header = box.querySelector('header');
     if (!header) return;
     header.addEventListener('click', function (ev) {
       if (ev.target.closest('button, a, input, select, textarea')) return;
-      var m = readOpen();
+      var m = readOpen(storeKey);
       var collapseNow = !box.classList.contains('collapsed');
       m[key] = !collapseNow;
-      writeOpen(m);
+      writeOpen(m, storeKey);
       box.classList.toggle('collapsed', collapseNow);
       ev.preventDefault();
     });
   }
 
-  function foldConfig() {
-    var view = document.getElementById('view-config');
+  /* 通用折叠：配置页八个分区、积分构成每个账号一块。
+     默认只展开前两块，选择记到 localStorage。 */
+  function foldBoxes(viewId, storeKey, defaultOpen) {
+    var view = document.getElementById(viewId);
     if (!view) return;
     var boxes = view.querySelectorAll('.box');
-    var saved = readOpen();
+    var saved = readOpen(storeKey);
     for (var i = 0; i < boxes.length; i++) {
       var box = boxes[i];
       var h3 = box.querySelector('header h3');
       if (!h3) continue;
       var key = (h3.innerText || '').trim().slice(0, 24);
       var open = saved[key];
-      if (open === undefined) open = i < 2; /* 默认只展开前两块 */
+      if (open === undefined) open = i < defaultOpen;
       box.classList.toggle('collapsed', !open);
-      if (box.dataset.boundCfg === '1') continue;
-      box.dataset.boundCfg = '1';
-      bindHeader(box, key);
+      if (box.dataset['bound' + storeKey] === '1') continue;
+      box.dataset['bound' + storeKey] = '1';
+      bindHeader(box, key, storeKey);
     }
+  }
+
+  function foldConfig() {
+    foldBoxes('view-config', 'cfg', 2);
+    foldBoxes('view-packages', 'pkg', 1);
   }
 
   /* ── 执行 ───────────────────────────────────────────────────── */
