@@ -207,7 +207,12 @@
       return;
     }
     var open = box.dataset.stOpen === '1';
-    for (var i = keep; i < tiles.length; i++) tiles[i].hidden = !open;
+    for (var i = keep; i < tiles.length; i++) {
+      /* 用内联 !important 而不是 hidden 属性：.stats .st{display:flex!important}
+         会压掉 [hidden]，折叠等于没折 */
+      if (open) tiles[i].style.removeProperty('display');
+      else tiles[i].style.setProperty('display', 'none', 'important');
+    }
     var btn = box.querySelector('.st-more');
     if (!btn) {
       btn = document.createElement('button');
@@ -240,7 +245,8 @@
       }
       var open = group.dataset.skOpen === '1';
       for (var k = 0; k < skipped.length; k++) {
-        skipped[k].hidden = !open;
+        if (open) skipped[k].style.removeProperty('display');
+        else skipped[k].style.setProperty('display', 'none', 'important');
       }
       var btn = group.querySelector('.tc-more');
       if (!skipped.length) {
