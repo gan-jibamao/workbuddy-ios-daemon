@@ -647,3 +647,79 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     flex: 0 0 auto;
   }
 }
+
+/* ── 统计瓦片 / KPI / 图表头：这三块在手机上最容易吃掉半屏 ── */
+@media (max-width: 760px) {
+  html.ios-m body .stats,
+  html.ios-m body .kpis {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px !important;
+  }
+  html.ios-m body .stat,
+  html.ios-m body .kpi {
+    padding: 10px 12px !important;
+    min-height: 0 !important;
+  }
+  html.ios-m body .stat .k,
+  html.ios-m body .kpis .k {
+    font-size: 10.5px !important;
+    line-height: 1.3;
+    margin-bottom: 1px;
+  }
+  html.ios-m body .stat .v,
+  html.ios-m body .kpi .v,
+  html.ios-m body .stat b {
+    display: inline-block !important;
+    font-size: 17px !important;
+    line-height: 1.2;
+  }
+  html.ios-m body .kpi .s {
+    display: inline-block !important;
+    margin-left: 6px;
+    font-size: 10.5px !important;
+    color: var(--ink-2);
+  }
+
+  html.ios-m body .uschart-hd {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 8px;
+    padding: 8px 12px !important;
+  }
+  html.ios-m body .uschart-hd .lb {
+    font-size: 12.5px !important;
+  }
+  html.ios-m body .uschart-hd .note {
+    font-size: 10.5px !important;
+  }
+  html.ios-m body .uschart-hd .grow {
+    display: none;
+  }
+  html.ios-m body .uschart-hd .legend {
+    width: 100%;
+    margin: 2px 0 0 !important;
+    padding: 0 !important;
+    gap: 3px 8px !important;
+  }
+
+  html.ios-m body .legend,
+  html.ios-m body .bh-daylegend {
+    gap: 4px 10px !important;
+    padding: 6px 12px !important;
+    font-size: 10.5px !important;
+  }
+
+  /* 时间范围 / 标签组：一行横向可滑，不换行堆高 */
+  html.ios-m body .trange,
+  html.ios-m body .chips {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    scrollbar-width: none;
+  }
+  html.ios-m body .trange::-webkit-scrollbar,
+  html.ios-m body .chips::-webkit-scrollbar {
+    display: none;
+  }
+}
