@@ -1280,3 +1280,46 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     background: #1c1c22;
   }
 }
+
+/* ── 用量格：四个值横向 261px 塞进 162px 的格子 ───────────────
+   面板用 .usage-line{display:inline-flex;nowrap}，「1290次 245mtok 1.8s 60.7tok/s」
+   实测总宽 261px，而 TD 只有 162px —— 后两个直接溢出去压住「最近成功」。
+   改成两列网格，每格自己省略，不再出格。 */
+@media (max-width: 760px) {
+  html.ios-m body td.usage-cell .usage-line {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3px 10px;
+    width: 100%;
+    white-space: normal !important;
+  }
+  html.ios-m body td.usage-cell .usage-item {
+    margin: 0 !important;
+    min-width: 0;
+    font-size: 11.5px !important;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  html.ios-m body td.usage-cell {
+    text-align: left;
+  }
+
+  /* 「其余 N 个账号，展开」：虚线透明底不好看，换成实底卡片条 */
+  html.ios-m body .pk-group-toggle {
+    display: block;
+    width: calc(100% - 24px) !important;
+    height: 34px !important;
+    margin: 8px 12px 10px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 12px !important;
+    background: rgba(0, 0, 0, 0.035) !important;
+    color: var(--ink-2) !important;
+    font-size: 12px !important;
+    text-align: center;
+  }
+  html.ios-m.dark body .pk-group-toggle {
+    background: rgba(255, 255, 255, 0.06) !important;
+  }
+}
