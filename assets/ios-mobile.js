@@ -172,23 +172,19 @@
      后面的控件直接跑到卡片外面、压在别的东西上（请求记录那条 490px 塞 367px）。
      统一扫一遍：能滚动的不动，其它溢出的一律允许换行。 */
   function wrapOverflowRows() {
+    /* 只加不减：加完 .ios-wrap 之后元素就不再溢出，如果这里再按「不溢出」把类删掉，
+       下一轮又会溢出 -> 加了删删了加，30ms 抖一次，屏幕上就是频闪。 */
     var views = document.querySelectorAll('section.view');
     for (var v = 0; v < views.length; v++) {
       var nodes = views[v].querySelectorAll('div, header, form, span, p');
       for (var i = 0; i < nodes.length; i++) {
         var el = nodes[i];
+        if (el.classList.contains('ios-wrap')) continue;
         var cs = getComputedStyle(el);
-        if (cs.display !== 'flex' && cs.display !== 'inline-flex') {
-          if (el.classList.contains('ios-wrap')) el.classList.remove('ios-wrap');
-          continue;
-        }
-        var scrollable = /auto|scroll/.test(cs.overflowX) || /auto|scroll/.test(cs.overflowY);
-        var over = el.scrollWidth - el.clientWidth;
-        if (!scrollable && over > 2 && cs.flexWrap === 'nowrap') {
-          el.classList.add('ios-wrap');
-        } else if (el.classList.contains('ios-wrap') && over <= 2) {
-          el.classList.remove('ios-wrap');
-        }
+        if (cs.display !== 'flex' && cs.display !== 'inline-flex') continue;
+        if (cs.flexWrap !== 'nowrap') continue;
+        if (/auto|scroll/.test(cs.overflowX) || /auto|scroll/.test(cs.overflowY)) continue;
+        if (el.scrollWidth - el.clientWidth > 2) el.classList.add('ios-wrap');
       }
     }
   }
@@ -225,9 +221,9 @@
       });
       box.appendChild(btn);
     }
-    btn.textContent = open
-      ? '收起其余指标'
-      : '其余 ' + (tiles.length - keep) + ' 项指标 · 展开';
+    var mtxt = open ? '收起其余指标' : '其余 ' + (tiles.length - keep) + ' 项指标 · 展开';
+    /* textContent 每次赋值都换掉文本节点 -> 触发观察器 -> 再赋值，形成自激抖动 */
+    if (btn.textContent !== mtxt) btn.textContent = mtxt;
   }
 
   /* 下拉按文字实测宽度定尺：面板各处 select 宽度是写死的（「全部档位」73px），
@@ -240,19 +236,19 @@
       var s = sels[i];
       var cs = getComputedStyle(s);
       if (cs.display === 'none' || s.getBoundingClientRect().width === 0) continue;
-      s.style.setProperty('padding-left', '10px', 'important');
-      s.style.setProperty('padding-right', '30px', 'important');
-      s.style.setProperty('height', '34px', 'important');
-      s.style.setProperty('border-radius', '17px', 'important');
+      /* 只在值不同的时候写：反复 set/remove 会让布局每轮抖一次 */
+      if (cs.paddingLeft !== '10px') s.style.setProperty('padding-left', '10px', 'important');
+      if (cs.paddingRight !== '30px') s.style.setProperty('padding-right', '30px', 'important');
+      if (cs.height !== '34px') s.style.setProperty('height', '34px', 'important');
+      if (cs.borderTopLeftRadius !== '17px') s.style.setProperty('border-radius', '17px', 'important');
       var opt = s.options[s.selectedIndex];
       var txt = opt ? String(opt.text || '').trim() : '';
       if (!txt) continue;
       cv.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
       var need = Math.ceil(cv.measureText(txt).width) + 10 + 30 + 2;
-      if (s.getBoundingClientRect().width < need) {
+      /* 只涨不缩：缩回去下一轮又不够宽，同样会造成来回抖动 */
+      if (parseFloat(cs.minWidth) < need) {
         s.style.setProperty('min-width', need + 'px', 'important');
-      } else {
-        s.style.removeProperty('min-width');
       }
     }
   }
@@ -282,7 +278,8 @@
       }
       if (isTotal) {
         if (kEl && !kEl.dataset.orig) kEl.dataset.orig = label;
-        if (kEl) kEl.textContent = label.replace(/^当前/, '');
+        var short = label.replace(/^当前/, '').replace(/（[^）]*）/g, '').replace(/\([^)]*\)/g, '').trim() || '合计';
+        if (kEl && kEl.textContent !== short) kEl.textContent = short;
         if (vEl && !vEl.dataset.unit) { vEl.dataset.unit = '1'; }
       }
     }
@@ -334,7 +331,8 @@
         });
         group.appendChild(btn);
       }
-      btn.textContent = open ? '收起已跳过' : '其余 ' + skipped.length + ' 项已跳过 · 展开';
+      var stxt = open ? '收起已跳过' : '其余 ' + skipped.length + ' 项已跳过 · 展开';
+      if (btn.textContent !== stxt) btn.textContent = stxt;
     }
   }
 

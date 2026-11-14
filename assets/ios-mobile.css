@@ -1703,3 +1703,24 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     display: none !important;
   }
 }
+
+/* KPI 区：任何标签都不许折行（「合计（国内）」曾按字断成三行） */
+@media (max-width: 760px) {
+  html.ios-m body #bhStats .st .k,
+  html.ios-m body #bhStats .st .v {
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  html.ios-m body #bhStats .st-hero {
+    flex-wrap: nowrap !important;
+  }
+  html.ios-m body #bhStats .st-hero .k {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  html.ios-m body #bhStats .st-hero .v {
+    flex: 0 0 auto;
+  }
+}
