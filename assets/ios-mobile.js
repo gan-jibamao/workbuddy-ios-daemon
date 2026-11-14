@@ -468,6 +468,7 @@
 
   /* ── 执行 ───────────────────────────────────────────────────── */
   function sweep() {
+    labelAccounts();
     ensureScope();
     if (!sweep._e) { sweep._e = 1; patchExport(); }
     if (!sweep._v) { sweep._v = 1; window.setTimeout(startVersionWatch, 800); }
@@ -624,6 +625,20 @@
         }
       }, 220);
     }, { passive: true });
+  }
+
+  /* 账号格兜底：面板渲染的是「昵称(uid)」，昵称为空时那格就只剩一个图标。
+     实测账号池里 uid=5d731dea 这条没有昵称（UUID 账号，没绑手机），
+     请求事件里整格空白，看不出是谁。这里只补显示文本，不动 title。 */
+  function labelAccounts() {
+    var spans = document.querySelectorAll('.acct-cell > span[title]');
+    for (var i = 0; i < spans.length; i++) {
+      var sp = spans[i];
+      if ((sp.textContent || '').trim()) continue;
+      var m = /^\(([^)]+)\)$/.exec(sp.getAttribute('title') || '');
+      if (!m || !m[1]) continue;
+      sp.textContent = 'UID ' + m[1].slice(0, 8);
+    }
   }
 
   function start() {
