@@ -288,6 +288,46 @@
     }
   }
 
+  /* 账号卡上的「模型锁定 / 限流」信息（.rate-limits）在 -59 精简卡片时被整块藏掉，
+     结果看不到哪个号被哪个模型锁了。这里把它抽成卡片里的独立一行：
+     td.acc-lock 追加到行尾（面板重绘会丢，sweep 会再补），有锁才占那一行。 */
+  function decorateLocks() {
+    var body = document.getElementById('accBody');
+    if (!body) return;
+    for (var i = 0; i < body.rows.length; i++) {
+      var tr = body.rows[i];
+      var st = tr.querySelector("td[data-label='状态']");
+      var rl = st ? st.querySelector('.rate-limits') : null;
+      var cell = tr.querySelector('td.acc-lock');
+      if (!rl) {
+        if (cell) cell.remove();
+        tr.classList.remove('has-lock');
+        continue;
+      }
+      /* 模型名与恢复时间要分开读：「deepseek-v4.1-flash · 预计 … 恢复（剩余 …）」 */
+      var bEl = rl.querySelector('b');
+      var spEl = rl.querySelector('span');
+      var txt = (bEl ? bEl.textContent.trim() : '') +
+        (spEl ? ' · ' + spEl.textContent.replace(/\s+/g, ' ').trim() : '');
+      if (!txt) txt = (rl.textContent || '').replace(/\s+/g, ' ').trim();
+      if (!txt) {
+        if (cell) cell.remove();
+        tr.classList.remove('has-lock');
+        continue;
+      }
+      tr.classList.add('has-lock');
+      if (!cell) {
+        cell = document.createElement('td');
+        cell.className = 'acc-lock';
+        tr.appendChild(cell);
+      }
+      if (cell.textContent !== txt) cell.textContent = txt;
+      var title = rl.querySelector('.rate-limit');
+      var t2 = title ? title.getAttribute('title') : '';
+      if (t2 && cell.getAttribute('title') !== t2) cell.setAttribute('title', t2);
+    }
+  }
+
   /* 账号池每 5 秒轮询一次，面板的 setHTML 只在 HTML 逐字节相同时才跳过；
      而「最近成功」这类相对时间、用量计数几乎每轮都在变 -> 整张表 innerHTML 重建
      -> 整张卡闪一下。这里接管 accBody 的 innerHTML 赋值：行数、列数一致时逐格比对，
@@ -436,6 +476,7 @@
     decorateBalhist();
     markGroupToggles();
     patchAccBody();
+    decorateLocks();
     wrapOverflowRows();
   }
 

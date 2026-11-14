@@ -1995,3 +1995,44 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     overflow-wrap: anywhere;
   }
 }
+
+/* ── 账号卡：模型锁定 / 限流提示 ─────────────────────────────
+   .rate-limits 原本在状态格里（-59 藏掉了），现在抽成 td.acc-lock 独立一行：
+   有锁才占一行，宽带占满，琥珀色左边条 + 极浅底，长文本单行省略（title 里有全文）。 */
+@media (max-width: 760px) {
+  html.ios-m body #view-accounts table.acc-main td.acc-lock {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: block;
+    margin: 0 !important;
+    padding: 5px 9px !important;
+    border-left: 2px solid #d9a400;
+    border-radius: 7px;
+    background: rgba(217, 164, 0, 0.10);
+    color: var(--ink-1) !important;
+    font-size: 10.5px;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  html.ios-m.dark body #view-accounts table.acc-main td.acc-lock {
+    background: rgba(217, 164, 0, 0.16);
+  }
+  html.ios-m body #view-accounts table.acc-main td.acc-lock::before {
+    content: none !important;
+  }
+  /* 有锁时其余各行下移一行 */
+  html.ios-m body #view-accounts table.acc-main tr.has-lock td[data-label='积分'],
+  html.ios-m body #view-accounts table.acc-main tr.has-lock td[data-label='成功 / 失败'],
+  html.ios-m body #view-accounts table.acc-main tr.has-lock td[data-label='在途'] {
+    grid-row: 3;
+  }
+  html.ios-m body #view-accounts table.acc-main tr.has-lock td[data-label='用量'],
+  html.ios-m body #view-accounts table.acc-main tr.has-lock td[data-label='最近成功'] {
+    grid-row: 4;
+  }
+  html.ios-m body #view-accounts table.acc-main tr.has-lock td[data-role='acts'] {
+    grid-row: 5;
+  }
+}
