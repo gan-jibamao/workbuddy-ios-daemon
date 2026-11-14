@@ -1122,3 +1122,16 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     margin: 0 !important;
   }
 }
+
+/* ── [hidden] 必须真的隐藏 ─────────────────────────────────────
+   面板的「其余 N 个账号，展开」是给行加 hidden 属性来做折叠的，
+   而卡片形态的 `table.as-cards tr{display:grid !important}` 会把
+   hidden 的 display:none 压掉 —— 点了完全没反应。
+   这里统一兜底：带 hidden 的节点永远不显示，且 !important 也不许覆盖。 */
+@media (max-width: 760px) {
+  html.ios-m body [hidden],
+  html.ios-m body table.as-cards tr[hidden],
+  html.ios-m body table.as-cards tr[style*='display: none'] {
+    display: none !important;
+  }
+}
