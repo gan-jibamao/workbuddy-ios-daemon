@@ -2377,3 +2377,19 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     background: color-mix(in srgb, var(--accent) 16%, transparent);
   }
 }
+
+/* ── 用量页：模型名+占比那行会随数据变长 ─────────────────────
+   实测出现过 "prompt 99.6% · com…" 右沿到 395px（视口 393）的情况，
+   只在特定数据下触发。允许断行就彻底不会越界，信息也不丢。 */
+@media (max-width: 760px) {
+  html.ios-m body #view-usage .s {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  /* 开关整行不参与缩放：只有滑块动，文字别跟着抖 */
+  html.ios-m body .switch:active,
+  html.ios-m body .switch.is-press {
+    transform: none !important;
+  }
+}
