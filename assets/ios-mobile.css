@@ -1568,3 +1568,23 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     background-color: transparent !important;
   }
 }
+
+/* 任务中心工具条收尾：把「并发」压回第一行，四个动作压成一行
+   实测第一行 107+107+109 + 间距 = 331 ≤ 343；第二行 65*3+92 + 间距 = 315 */
+@media (max-width: 760px) {
+  html.ios-m body #view-taskscenter .box > header {
+    gap: 8px 4px !important;
+  }
+  html.ios-m body #view-taskscenter .box > header > label.sel-note {
+    padding: 0 8px !important;
+    gap: 4px !important;
+    font-size: 11.5px !important;
+  }
+  html.ios-m body #view-taskscenter .box > header > label.sel-note:last-of-type {
+    margin-left: 0 !important;
+  }
+  html.ios-m body #view-taskscenter .box > header > button.xs {
+    font-size: 11.5px !important;
+    padding: 0 8px !important;
+  }
+}
