@@ -78,6 +78,13 @@
           } else {
             role = 'field';
           }
+          if (role === 'title' && compact) {
+            /* 标题格里常是「时间<br>日期」，紧凑行里要拼成一行，补个分隔符 */
+            var brs = td.querySelectorAll('br');
+            for (var bi = 0; bi < brs.length; bi++) {
+              brs[bi].replaceWith(document.createTextNode(' · '));
+            }
+          }
           td.dataset.role = role;
           if (role === 'field') {
             td.dataset.label = labels[c] || '';
