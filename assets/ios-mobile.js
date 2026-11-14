@@ -193,6 +193,38 @@
     }
   }
 
+  /* 指标太多读不过来：余额趋势 9 个数字排成一片，看不出哪个是重点。
+     前 4 个留着一屏看清，其余收进「其余 N 项指标」。 */
+  function foldTiles(containerId, keep) {
+    var box = document.getElementById(containerId);
+    if (!box) return;
+    var tiles = [].slice.call(box.children).filter(function (c) {
+      return c.classList.contains('st');
+    });
+    if (tiles.length <= keep) {
+      var stale = box.querySelector('.st-more');
+      if (stale) stale.remove();
+      return;
+    }
+    var open = box.dataset.stOpen === '1';
+    for (var i = keep; i < tiles.length; i++) tiles[i].hidden = !open;
+    var btn = box.querySelector('.st-more');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.className = 'st-more';
+      btn.type = 'button';
+      btn.addEventListener('click', function (ev) {
+        var b = ev.currentTarget.parentNode;
+        b.dataset.stOpen = b.dataset.stOpen === '1' ? '0' : '1';
+        sweep();
+      });
+      box.appendChild(btn);
+    }
+    btn.textContent = open
+      ? '收起其余指标'
+      : '其余 ' + (tiles.length - keep) + ' 项指标 · 展开';
+  }
+
   function foldSkipped() {
     var view = document.getElementById('view-taskscenter');
     if (!view) return;
