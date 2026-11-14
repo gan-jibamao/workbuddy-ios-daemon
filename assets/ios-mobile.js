@@ -70,7 +70,9 @@
           var role;
           if (td.classList.contains('mark') || td.classList.contains('c-mark')) {
             role = 'mark';
-          } else if (td.classList.contains('c-acts')) {
+          } else if (td.classList.contains('c-acts') ||
+                     (c === tds.length - 1 && td.querySelector('button'))) {
+            /* 面板有些表把操作按钮放在没有 c-acts 类的最后一列 */
             role = 'acts';
           } else if (!titleTaken) {
             role = 'title';

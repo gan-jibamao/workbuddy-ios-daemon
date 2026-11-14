@@ -989,15 +989,14 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
 @media (max-width: 760px) {
   /* 卡片里同一格的多段值（手机号 + uid、用量 + 速度）改竖排，
      原来它们挤在一行，视觉上就是「文字重贴」 */
-  /* 同一格里多段值保持内联，只给间距：竖排会把「1761 / 0」拆成三行 */
-  html.ios-m body table.as-cards td > * + *:not(.pill):not(.tag) {
-    margin-left: 5px;
+  /* 同一格里多段值（用量：次数 / token / 延迟 / 速度）只给间距，
+     不强行改 display：手机号与 uid 这种本来就该各占一行 */
+  html.ios-m body table.as-cards td .usage-item,
+  html.ios-m body table.as-cards td .usage-line > span {
+    margin-right: 5px;
   }
-  html.ios-m body table.as-cards td > *:not(.pill):not(.tag):not(button) {
-    display: inline !important;
-  }
-  html.ios-m body table.as-cards td br {
-    display: none !important;
+  html.ios-m body table.as-cards td .usage-item:last-child {
+    margin-right: 0;
   }
 
   /* 账号池工具条：147 -> 89，两行 */
