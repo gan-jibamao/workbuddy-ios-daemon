@@ -2172,12 +2172,18 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
   }
 
   /* 2) 按下：整体缩 3.5% + 压暗。tab/chip 缩得更少，避免文字发虚 */
+  /* :active 与 .is-press 必须成对出现：触摸走 :active，程序化点击/指针事件
+     走 JS 打的 .is-press。少一半就是「按了没反应」。 */
   html.ios-m body button:active,
   html.ios-m body button.is-press,
   html.ios-m body .btn:active,
+  html.ios-m body .btn.is-press,
   html.ios-m body .nav a:active,
+  html.ios-m body .nav a.is-press,
   html.ios-m body .pk-group-toggle:active,
-  html.ios-m body summary:active {
+  html.ios-m body .pk-group-toggle.is-press,
+  html.ios-m body summary:active,
+  html.ios-m body summary.is-press {
     transform: scale(0.965);
     filter: brightness(0.94);
   }
@@ -2194,6 +2200,7 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     border-color: color-mix(in srgb, var(--ink) 22%, transparent);
   }
   html.ios-m body button.danger:active,
+  html.ios-m body button.danger.is-press,
   html.ios-m body button.ghost.danger:active,
   html.ios-m body button.ghost.danger.is-press {
     background: color-mix(in srgb, #d92d20 14%, transparent);
