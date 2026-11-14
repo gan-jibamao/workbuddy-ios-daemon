@@ -833,3 +833,90 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     overflow: hidden;
   }
 }
+
+/* ── 头部收口（第二轮）：说明文字一律不占位置 ── */
+@media (max-width: 760px) {
+  html.ios-m body .box > header .hint,
+  html.ios-m body .events-title-wrap .hint,
+  html.ios-m body .events-title-wrap .subtext {
+    display: none !important;
+  }
+  html.ios-m body .box > header .note {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 2px;
+    font-size: 11px !important;
+    line-height: 1.4;
+  }
+  html.ios-m body .box > header {
+    padding: 9px 12px !important;
+  }
+
+  /* 通用筛选条（模型页 / 日志页）：一行横向可滑的胶囊 */
+  html.ios-m body .fbar {
+    flex-wrap: nowrap !important;
+    align-items: center;
+    gap: 6px !important;
+    padding: 6px 12px !important;
+    overflow-x: auto;
+  }
+  html.ios-m body .fbar::-webkit-scrollbar {
+    display: none;
+  }
+  html.ios-m body .fbar > input {
+    flex: 0 0 150px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    font-size: 13px !important;
+  }
+  html.ios-m body .fbar > select {
+    flex: 0 0 auto !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    max-width: 150px;
+    font-size: 12px !important;
+  }
+  html.ios-m body .fbar > span.grow {
+    display: none;
+  }
+  html.ios-m body .fbar > span.note {
+    flex: 0 0 auto;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  html.ios-m body .fbar > button {
+    flex: 0 0 auto;
+    height: 32px !important;
+    min-height: 32px !important;
+    font-size: 12px !important;
+  }
+
+  /* 任务中心头部：标题一行，控件一行 */
+  html.ios-m body #view-taskscenter .box > header {
+    flex-wrap: wrap !important;
+    align-items: center;
+    gap: 6px !important;
+  }
+  html.ios-m body #view-taskscenter .box > header h3 {
+    flex: 1 1 100%;
+    margin: 0;
+  }
+  html.ios-m body #view-taskscenter .box > header .grow {
+    display: none;
+  }
+  html.ios-m body #view-taskscenter .box > header .sel-note {
+    height: 30px !important;
+    padding: 0 8px !important;
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    font-size: 11.5px !important;
+  }
+  html.ios-m body #view-taskscenter .box > header button {
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 10px !important;
+    font-size: 12px !important;
+  }
+}
