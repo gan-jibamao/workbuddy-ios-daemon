@@ -355,6 +355,12 @@
         tables[i].addEventListener('click', onRowClick);
       }
     }
+    /* 账号池主表打标：它和「积分到期提醒」表都是 as-cards，按标签做网格排布需要区分 */
+    var accBody = document.getElementById('accBody');
+    if (accBody) {
+      var at = accBody.closest('table');
+      if (at && !at.classList.contains('acc-main')) at.classList.add('acc-main');
+    }
     foldConfig();
     foldSkipped();
     decorateStats();
