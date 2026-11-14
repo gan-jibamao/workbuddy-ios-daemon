@@ -2090,8 +2090,12 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
   html.ios-m body #view-events .events-filter-bar {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important;
-    align-items: end;
+    /* 每格是「标签 11 + 3 + 下拉 34 = 48px」，行距若只有 40px 会纵向叠上：
+       后一行标签压在前一行下拉下沿，看起来忽宽忽窄。行高必须按内容走。 */
+    grid-auto-rows: auto !important;
+    align-items: stretch !important;
+    row-gap: 10px !important;
+    column-gap: 8px !important;
     height: auto !important;
     min-height: 0 !important;
     overflow: visible !important;
@@ -2103,6 +2107,11 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     min-width: 0 !important;
     max-width: 100% !important;
     flex: none !important;
+    /* 面板给这组写死了 32px 高，而「标签 17 + 下拉 34 = 51」直接溢出，
+       行与行之间就叠在一起。高度必须交给内容。 */
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
   }
   html.ios-m body #view-events .events-filter-group > label {
     display: block;
@@ -2117,6 +2126,8 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
   html.ios-m body #view-events .events-filter-bar > button {
     order: 2;
     width: 100% !important;
+    height: 34px !important;
+    align-self: end;
   }
   html.ios-m body #view-events .events-filter-bar > .grow {
     display: none !important;
