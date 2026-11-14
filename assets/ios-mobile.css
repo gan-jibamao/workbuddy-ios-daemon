@@ -1160,3 +1160,91 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     display: none;
   }
 }
+
+/* ── 运行日志头部：139px 四行 → 两行工具条 ───────────────────
+   原来是「运行日志」标题 / 计数 / [最近3天][导出ZIP] / [自动滚动] 各占一行。
+   重排：第一行 频道胶囊 + 自动滚动；第二行 计数 + 下拉 + 导出。
+   标题与视图标题重复，手机端直接去掉。 */
+@media (max-width: 760px) {
+  html.ios-m body #view-logs .box > header {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center;
+    gap: 6px 8px;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 10px 12px 10px !important;
+  }
+  html.ios-m body #view-logs .box > header > h3,
+  html.ios-m body #view-logs .box > header > .grow {
+    display: none !important;
+  }
+  html.ios-m body #view-logs .box > header > .chips {
+    order: 1;
+    height: 34px !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  html.ios-m body #view-logs .box > header > .chips .chip {
+    height: 30px !important;
+    line-height: 30px;
+    padding: 0 12px;
+    font-size: 12px;
+    border-radius: 15px;
+  }
+  /* 自动滚动是最后一个 button，放到第一行右侧 */
+  html.ios-m body #view-logs .box > header > button.xs:last-of-type {
+    order: 2;
+    margin-left: auto;
+    height: 30px !important;
+    padding: 0 11px;
+    font-size: 11.5px;
+    border-radius: 15px;
+  }
+  html.ios-m body #view-logs .box > header > .note {
+    order: 3;
+    flex: 0 1 auto;
+    margin: 0;
+    font-size: 11px;
+    color: var(--ink-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* 下拉：抹掉原生外观，做成胶囊 + 自绘箭头 */
+  html.ios-m body #view-logs .box > header > select {
+    order: 4;
+    margin-left: auto;
+    width: auto !important;
+    min-width: 92px;
+    height: 34px !important;
+    padding: 0 26px 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 17px;
+    background-color: transparent;
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238a8a90' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 11px center;
+    -webkit-appearance: none;
+    appearance: none;
+    font-size: 12px;
+    color: var(--ink-1);
+    text-indent: 0;
+  }
+  /* 导出：胶囊 + 下载图标 */
+  html.ios-m body #view-logs .box > header > button.xs:not(:last-of-type) {
+    order: 5;
+    height: 34px !important;
+    padding: 0 14px 0 30px;
+    border: 1px solid var(--line);
+    border-radius: 17px;
+    background-color: transparent;
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M7 1v8m0 0L3.6 5.6M7 9l3.4-3.4M2 11.5h10' fill='none' stroke='%23555a66' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 11px center;
+    font-size: 12px;
+    color: var(--ink-1);
+    box-shadow: none;
+  }
+}
