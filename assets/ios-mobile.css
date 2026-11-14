@@ -989,10 +989,11 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
 @media (max-width: 760px) {
   /* 卡片里同一格的多段值（手机号 + uid、用量 + 速度）改竖排，
      原来它们挤在一行，视觉上就是「文字重贴」 */
-  html.ios-m body table.as-cards td > *:not(.pill):not(.tag):not(button) {
+  /* 只作用于「非紧凑」卡片：紧凑行必须保持内联，否则一条记录又变回 148px */
+  html.ios-m body table.as-cards:not(.compact) td > *:not(.pill):not(.tag):not(button) {
     display: block !important;
   }
-  html.ios-m body table.as-cards td > * + *:not(.pill):not(.tag) {
+  html.ios-m body table.as-cards:not(.compact) td > * + *:not(.pill):not(.tag) {
     margin-top: 2px;
   }
 
