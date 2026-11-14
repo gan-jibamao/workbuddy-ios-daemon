@@ -339,6 +339,7 @@
   /* ── 执行 ───────────────────────────────────────────────────── */
   function sweep() {
     ensureScope();
+    if (!sweep._v) { sweep._v = 1; window.setTimeout(checkVersion, 800); }
     var tables = document.querySelectorAll('table');
     var i, k;
     if (!MQ.matches) {
@@ -379,6 +380,31 @@
     if (ev.target.closest('button, a, input, select, textarea')) return;
     var row = ev.target.closest('tr');
     if (row) row.classList.toggle('open');
+  }
+
+  /* 版本自愈：面板页面一旦在旧版本上打开就不会自己刷新，
+     用户看到的还是上几个版本的排版（我们这边怎么改都没用）。
+     这里比对 daemon 报的版本号，不一致就整页重载一次，并用 sessionStorage 防循环。 */
+  function checkVersion() {
+    var MY = '60';
+    try {
+      if (sessionStorage.getItem('__ios_patch_v') === MY) return;
+      var key = localStorage.getItem('wb2api.key') || '';
+      fetch('/panel/api/overview', { headers: key ? { Authorization: 'Bearer ' + key } : {} })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) {
+          if (!j || !j.version) return;
+          var m = /-arm64e-(\d+)$/.exec(j.version);
+          if (!m) return;
+          if (m[1] !== MY) {
+            sessionStorage.setItem('__ios_patch_v', MY);
+            location.reload();
+          } else {
+            sessionStorage.setItem('__ios_patch_v', MY);
+          }
+        })
+        .catch(function () {});
+    } catch (e) {}
   }
 
   var pending = false;
