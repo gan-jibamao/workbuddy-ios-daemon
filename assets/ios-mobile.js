@@ -383,41 +383,38 @@
     if (row) row.classList.toggle('open');
   }
 
-  /* 面板的「导出 ZIP」用 fetch/location.href，都不带 Authorization，
-     服务端一律 401 invalid_api_key。这里在捕获阶段截走点击，用带 key 的 fetch
-     取回 blob 再触发下载。 */
+  /* 面板的「导出 ZIP」打的是 /panel/api/logs/export，实测这个端点会把进程打崩
+     （响应断在 512 字节、launchd 记 last exit code = 2，server.log 里没有栈）。
+     改成从 /panel/api/logs（环形缓冲快照）取数据，在本地生成 JSON 下载，
+     不碰那个会把服务弄死的端点。 */
   function patchExport() {
     function doExport() {
-      var sel = document.getElementById('logExportDays');
-      var days = (sel && sel.value) || '3';
-      var url = '/panel/api/logs/export?days=' + encodeURIComponent(days);
       var key = '';
       try { key = localStorage.getItem('wb2api.key') || ''; } catch (e) {}
       var headers = key ? { Authorization: 'Bearer ' + key } : {};
-      fetch(url, { headers: headers }).then(function (r) {
-        if (!r.ok) {
-          return r.text().then(function (t) {
-            var msg = 'HTTP ' + r.status;
-            try { msg = JSON.parse(t).error || msg; } catch (e) {}
-            alert('导出失败：' + msg);
-          });
-        }
-        var name = 'logs-' + days + 'd.zip';
-        var cd = r.headers.get('Content-Disposition') || '';
-        var m = /filename="?([^"';]+)"?/.exec(cd);
-        if (m) name = m[1];
-        return r.blob().then(function (b) {
-          var a = document.createElement('a');
-          a.href = URL.createObjectURL(b);
-          a.download = name;
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(function () {
-            URL.revokeObjectURL(a.href);
-            a.remove();
-          }, 60000);
-        });
-      }).catch(function (e) { alert('导出失败：' + e); });
+      fetch('/panel/api/logs', { headers: headers }).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function (j) {
+        var entries = (j && j.entries) || [];
+        var payload = JSON.stringify({
+          exported_at: new Date().toISOString(),
+          count: entries.length,
+          archive_error: j && j.archive_error || '',
+          entries: entries
+        }, null, 2);
+        var blob = new Blob([payload], { type: 'application/json' });
+        var d = new Date();
+        var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+        var name = 'panel-logs-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) +
+          '-' + pad(d.getHours()) + pad(d.getMinutes()) + '.json';
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 30000);
+      }).catch(function (e) { alert('导出失败：' + (e && e.message || e)); });
     }
     document.addEventListener('click', function (ev) {
       var t = ev.target;
@@ -427,6 +424,11 @@
       ev.stopImmediatePropagation();
       doExport();
     }, true);
+    var lab = document.getElementById('logExportDays');
+    if (lab && lab.parentNode) {
+      var b = lab.parentNode.querySelector('#btnLogExport');
+      if (b && b.textContent !== '导出') b.textContent = '导出';
+    }
   }
 
   /* 版本自愈：面板页面一旦在旧版本上打开就不会自己刷新，

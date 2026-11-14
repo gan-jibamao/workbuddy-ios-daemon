@@ -1820,3 +1820,40 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     display: none !important;
   }
 }
+
+/* ── 「其余 N 个账号，展开」再改一次 ──────────────────────────
+   上一版是灰底胶囊，孤零零一块，看着像误贴的组件。
+   改成卡片底部的分割行：一条虚线 + 居中灰字，视觉上属于表格而不是浮在中间。 */
+@media (max-width: 760px) {
+  html.ios-m body .pk-group-toggle {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100% !important;
+    height: 40px !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    border: 0 !important;
+    border-top: 1px dashed var(--line) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: var(--ink-3) !important;
+    font-size: 11.5px !important;
+    font-weight: 500;
+    text-align: center !important;
+    box-shadow: none !important;
+  }
+  html.ios-m body .pk-group-toggle::after {
+    content: '▾';
+    flex: 0 0 auto;
+    font-size: 9px;
+    opacity: 0.75;
+  }
+  html.ios-m body .pk-group-toggle:active {
+    background: rgba(0, 0, 0, 0.03) !important;
+  }
+  html.ios-m.dark body .pk-group-toggle:active {
+    background: rgba(255, 255, 255, 0.05) !important;
+  }
+}
