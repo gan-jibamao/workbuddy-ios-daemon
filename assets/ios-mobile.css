@@ -2047,9 +2047,10 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    height: 26px !important;
+    min-height: 24px !important;
+    height: auto !important;
     line-height: 16px !important;
-    padding: 5px 9px !important;
+    padding: 4px 9px !important;
   }
   html.ios-m body #view-accounts td[data-role='title'] .account-proxy select {
     min-width: 108px !important;

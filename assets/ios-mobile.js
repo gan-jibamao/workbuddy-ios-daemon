@@ -307,8 +307,13 @@
       /* 模型名与恢复时间要分开读：「deepseek-v4.1-flash · 预计 … 恢复（剩余 …）」 */
       var bEl = rl.querySelector('b');
       var spEl = rl.querySelector('span');
-      var txt = (bEl ? bEl.textContent.trim() : '') +
-        (spEl ? ' · ' + spEl.textContent.replace(/\s+/g, ' ').trim() : '');
+      var model = bEl ? bEl.textContent.trim() : '';
+      var rest = spEl ? spEl.textContent.replace(/\s+/g, ' ').trim() : '';
+      /* 整句「预计 2026-11-15 01:40 恢复（剩余 8时43分）」在 341px 里放不下，
+         收成「模型 · 剩余 8时43分」，完整内容留在 title 里。 */
+      var m = /剩余\s*([0-9]+\s*时\s*[0-9]+\s*分|[0-9]+\s*分)/.exec(rest);
+      var txt = model ? (model + (m ? ' · 剩余 ' + m[1].replace(/\s+/g, '') : (rest ? ' · ' + rest : '')))
+                      : rest;
       if (!txt) txt = (rl.textContent || '').replace(/\s+/g, ' ').trim();
       if (!txt) {
         if (cell) cell.remove();
@@ -319,7 +324,11 @@
       if (!cell) {
         cell = document.createElement('td');
         cell.className = 'acc-lock';
-        tr.appendChild(cell);
+        /* 必须插在操作列「前面」：shape() 用「最后一格且含 button」来认操作列，
+           插到最后会把真正的操作列挤成普通字段，按钮就整排不见了。 */
+        var acts = tr.querySelector("td[data-role='acts']") || tr.cells[tr.cells.length - 1];
+        if (acts && acts.parentNode === tr) tr.insertBefore(cell, acts);
+        else tr.appendChild(cell);
       }
       if (cell.textContent !== txt) cell.textContent = txt;
       var title = rl.querySelector('.rate-limit');
@@ -350,17 +359,25 @@
             desc.set.call(this, html);
             return;
           }
+          /* 我们自己插进去的 td.acc-lock 不在面板的新 HTML 里，
+             比对和更新都要先把它排除，否则每轮都判成结构不一致 -> 整表重画。 */
+          var real = function (row) {
+            return [].slice.call(row.cells).filter(function (c) {
+              return !c.classList.contains('acc-lock');
+            });
+          };
           for (var i = 0; i < oldRows.length; i++) {
             var a = oldRows[i], b = newRows[i];
-            if (a.cells.length !== b.cells.length) {
+            var ac = real(a), bc = real(b);
+            if (ac.length !== bc.length) {
               desc.set.call(this, html);
               return;
             }
             if (a.getAttribute('title') !== b.getAttribute('title')) {
               a.setAttribute('title', b.getAttribute('title') || '');
             }
-            for (var j = 0; j < a.cells.length; j++) {
-              var ca = a.cells[j], cb = b.cells[j];
+            for (var j = 0; j < ac.length; j++) {
+              var ca = ac[j], cb = bc[j];
               if (ca.innerHTML === cb.innerHTML) continue;
               if (ca.textContent === cb.textContent) {
                 /* 只有内部结构不同、文字一样：不动，避免无谓重排 */
