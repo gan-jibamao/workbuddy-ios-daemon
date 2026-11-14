@@ -339,7 +339,8 @@
   /* ── 执行 ───────────────────────────────────────────────────── */
   function sweep() {
     ensureScope();
-    if (!sweep._v) { sweep._v = 1; window.setTimeout(checkVersion, 800); }
+    if (!sweep._e) { sweep._e = 1; patchExport(); }
+    if (!sweep._v) { sweep._v = 1; window.setTimeout(startVersionWatch, 800); }
     var tables = document.querySelectorAll('table');
     var i, k;
     if (!MQ.matches) {
@@ -382,13 +383,58 @@
     if (row) row.classList.toggle('open');
   }
 
+  /* 面板的「导出 ZIP」用 fetch/location.href，都不带 Authorization，
+     服务端一律 401 invalid_api_key。这里在捕获阶段截走点击，用带 key 的 fetch
+     取回 blob 再触发下载。 */
+  function patchExport() {
+    function doExport() {
+      var sel = document.getElementById('logExportDays');
+      var days = (sel && sel.value) || '3';
+      var url = '/panel/api/logs/export?days=' + encodeURIComponent(days);
+      var key = '';
+      try { key = localStorage.getItem('wb2api.key') || ''; } catch (e) {}
+      var headers = key ? { Authorization: 'Bearer ' + key } : {};
+      fetch(url, { headers: headers }).then(function (r) {
+        if (!r.ok) {
+          return r.text().then(function (t) {
+            var msg = 'HTTP ' + r.status;
+            try { msg = JSON.parse(t).error || msg; } catch (e) {}
+            alert('导出失败：' + msg);
+          });
+        }
+        var name = 'logs-' + days + 'd.zip';
+        var cd = r.headers.get('Content-Disposition') || '';
+        var m = /filename="?([^"';]+)"?/.exec(cd);
+        if (m) name = m[1];
+        return r.blob().then(function (b) {
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(b);
+          a.download = name;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function () {
+            URL.revokeObjectURL(a.href);
+            a.remove();
+          }, 60000);
+        });
+      }).catch(function (e) { alert('导出失败：' + e); });
+    }
+    document.addEventListener('click', function (ev) {
+      var t = ev.target;
+      var btn = t && t.closest ? t.closest('#btnLogExport') : null;
+      if (!btn) return;
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+      doExport();
+    }, true);
+  }
+
   /* 版本自愈：面板页面一旦在旧版本上打开就不会自己刷新，
      用户看到的还是上几个版本的排版（我们这边怎么改都没用）。
      这里比对 daemon 报的版本号，不一致就整页重载一次，并用 sessionStorage 防循环。 */
   function checkVersion() {
-    var MY = '60';
+    var MY = '61';
     try {
-      if (sessionStorage.getItem('__ios_patch_v') === MY) return;
       var key = localStorage.getItem('wb2api.key') || '';
       fetch('/panel/api/overview', { headers: key ? { Authorization: 'Bearer ' + key } : {} })
         .then(function (r) { return r.ok ? r.json() : null; })
@@ -397,14 +443,19 @@
           var m = /-arm64e-(\d+)$/.exec(j.version);
           if (!m) return;
           if (m[1] !== MY) {
-            sessionStorage.setItem('__ios_patch_v', MY);
+            if (sessionStorage.getItem('__ios_patch_v') === j.version) return;
+            sessionStorage.setItem('__ios_patch_v', j.version);
             location.reload();
-          } else {
-            sessionStorage.setItem('__ios_patch_v', MY);
           }
         })
         .catch(function () {});
     } catch (e) {}
+  }
+
+  function startVersionWatch() {
+    if (startVersionWatch._t) return;
+    checkVersion();
+    startVersionWatch._t = window.setInterval(checkVersion, 15000);
   }
 
   var pending = false;
