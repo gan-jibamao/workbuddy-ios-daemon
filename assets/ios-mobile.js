@@ -288,6 +288,54 @@
     }
   }
 
+  /* 账号池每 5 秒轮询一次，面板的 setHTML 只在 HTML 逐字节相同时才跳过；
+     而「最近成功」这类相对时间、用量计数几乎每轮都在变 -> 整张表 innerHTML 重建
+     -> 整张卡闪一下。这里接管 accBody 的 innerHTML 赋值：行数、列数一致时逐格比对，
+     只改真正变化的那几格，不再整表重画。 */
+  function patchAccBody() {
+    var tb = document.getElementById('accBody');
+    if (!tb || tb.__iosPatched) return;
+    var desc = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+    if (!desc) return;
+    tb.__iosPatched = 1;
+    Object.defineProperty(tb, 'innerHTML', {
+      configurable: true,
+      get: function () { return desc.get.call(this); },
+      set: function (html) {
+        try {
+          var tmp = document.createElement('tbody');
+          desc.set.call(tmp, html);
+          var oldRows = this.rows, newRows = tmp.rows;
+          if (!newRows.length || oldRows.length !== newRows.length) {
+            desc.set.call(this, html);
+            return;
+          }
+          for (var i = 0; i < oldRows.length; i++) {
+            var a = oldRows[i], b = newRows[i];
+            if (a.cells.length !== b.cells.length) {
+              desc.set.call(this, html);
+              return;
+            }
+            if (a.getAttribute('title') !== b.getAttribute('title')) {
+              a.setAttribute('title', b.getAttribute('title') || '');
+            }
+            for (var j = 0; j < a.cells.length; j++) {
+              var ca = a.cells[j], cb = b.cells[j];
+              if (ca.innerHTML === cb.innerHTML) continue;
+              if (ca.textContent === cb.textContent) {
+                /* 只有内部结构不同、文字一样：不动，避免无谓重排 */
+                continue;
+              }
+              ca.innerHTML = cb.innerHTML;
+            }
+          }
+        } catch (e) {
+          desc.set.call(this, html);
+        }
+      }
+    });
+  }
+
   /* 「其余 N 个账号，展开」在表格里是一个 td 里的按钮。给它的父 td 打标，
      把 td 自己的内边距清掉，展开条才能贴着表格底边做成一条干净的脚注行。 */
   function markGroupToggles() {
@@ -387,6 +435,7 @@
     fitSelects();
     decorateBalhist();
     markGroupToggles();
+    patchAccBody();
     wrapOverflowRows();
   }
 
