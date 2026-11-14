@@ -1762,11 +1762,11 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
   }
   html.ios-m body #view-accounts table.acc-main td[data-role='title'] .account-proxy select {
     max-width: 100% !important;
-    height: 26px !important;
-    min-height: 26px !important;
+    height: 30px !important;
+    min-height: 30px !important;
     font-size: 11px !important;
     padding: 0 22px 0 8px !important;
-    border-radius: 13px !important;
+    border-radius: 15px !important;
   }
   /* 状态：只留一行，长文本省略（原始是「预计 2026-11-15 01:40 恢复（剩余 12时05分）」） */
   html.ios-m body #view-accounts table.acc-main td[data-label='状态'] {
@@ -1968,5 +1968,30 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
   }
   html.ios-m body #view-events .events-filter-bar > button {
     flex: 0 0 auto;
+  }
+}
+
+/* ── 表格的「桌面态」不再漏到屏幕上 ───────────────────────────
+   视图刚切过去的那一两帧，sweep 还没把 as-cards 打上，表格会按 7 列表格自然宽度
+   渲染（实测 636px）——这就是切页时那一下「整块跳」。用 table-layout:fixed +
+   100% 宽把任何时刻的宽度钉死在卡片内，等卡片形态上来再按各自的网格排。 */
+@media (max-width: 760px) {
+  html.ios-m body table.acc {
+    width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed;
+  }
+  html.ios-m body table.acc:not(.as-cards) > tbody > tr > td,
+  html.ios-m body table.acc:not(.as-cards) > thead > tr > th {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere;
+  }
+  html.ios-m body .tbl-wrap {
+    max-width: 100%;
+  }
+  /* 用量页有一处 <s>（原价划线）会顶出 2px */
+  html.ios-m body #view-usage td {
+    overflow-wrap: anywhere;
   }
 }
