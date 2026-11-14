@@ -2056,3 +2056,21 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     width: auto !important;
   }
 }
+
+/* ── 账号卡操作行：固定四列会在第二行末尾留空，「移除」孤零零挂在左边 ──
+   改成 flex + 可伸展：每行按剩余宽度均分，7 个按钮 → 4 + 3，第二行三个铺满。 */
+@media (max-width: 760px) {
+  html.ios-m body #view-accounts table.acc-main td[data-role='acts'] .acts-inner {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    width: 100% !important;
+    grid-template-columns: none !important;
+  }
+  html.ios-m body #view-accounts table.acc-main td[data-role='acts'] .acts-inner > * {
+    flex: 1 1 calc(25% - 6px) !important;
+    min-width: 74px !important;
+    width: auto !important;
+    justify-content: center;
+  }
+}
