@@ -1249,3 +1249,34 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     box-shadow: none;
   }
 }
+
+/* ── 全站下拉统一成胶囊 ───────────────────────────────────────
+   面板各处 select 各写各的：高度 30/32/34/38、圆角 9px、原生箭头。
+   统一成 34px 高、17px 圆角、自绘箭头，和按钮同一套。
+   （#view-logs 里那条更具体的规则优先，效果相同） */
+@media (max-width: 760px) {
+  html.ios-m body select {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 26px 0 12px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 17px !important;
+    background-color: transparent !important;
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238a8a90' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    font-size: 12.5px !important;
+    line-height: 1.2;
+    color: var(--ink-1);
+  }
+  html.ios-m body select option {
+    color: var(--ink-1);
+    background: #ffffff;
+  }
+  html.ios-m.dark body select option {
+    color: #e8e8ec;
+    background: #1c1c22;
+  }
+}
