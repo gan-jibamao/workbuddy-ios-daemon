@@ -2417,3 +2417,12 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     content: none;
   }
 }
+
+/* 承接上一条：结果 的前缀「结果」和徽标「成功」被拆到两行——徽标留在第二行
+   尾部（x291..314），前缀掉到第三行。keep 字段本就是每行最重要的三个，
+   都用徽标/数值自解释，前缀统一去掉，整行回到「标题 + 一行字段」。 */
+@media (max-width: 760px) {
+  html.ios-m body table.as-cards.compact td[data-prio='keep']::before {
+    content: none;
+  }
+}
