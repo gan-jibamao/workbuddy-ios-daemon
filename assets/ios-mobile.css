@@ -989,12 +989,15 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
 @media (max-width: 760px) {
   /* 卡片里同一格的多段值（手机号 + uid、用量 + 速度）改竖排，
      原来它们挤在一行，视觉上就是「文字重贴」 */
-  /* 只作用于「非紧凑」卡片：紧凑行必须保持内联，否则一条记录又变回 148px */
-  html.ios-m body table.as-cards:not(.compact) td > *:not(.pill):not(.tag):not(button) {
-    display: block !important;
+  /* 同一格里多段值保持内联，只给间距：竖排会把「1761 / 0」拆成三行 */
+  html.ios-m body table.as-cards td > * + *:not(.pill):not(.tag) {
+    margin-left: 5px;
   }
-  html.ios-m body table.as-cards:not(.compact) td > * + *:not(.pill):not(.tag) {
-    margin-top: 2px;
+  html.ios-m body table.as-cards td > *:not(.pill):not(.tag):not(button) {
+    display: inline !important;
+  }
+  html.ios-m body table.as-cards td br {
+    display: none !important;
   }
 
   /* 账号池工具条：147 -> 89，两行 */
@@ -1050,5 +1053,73 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     min-height: 30px !important;
     padding: 0 6px !important;
     font-size: 11px !important;
+  }
+}
+
+/* ── 按钮体系统一 ─────────────────────────────────────────────
+   面板里按钮有 .btn / .xs / .ghost / .primary / .icon / .chip 六种写法，
+   高度从 22 到 44 不等。这里统一成一套：默认 34、紧凑 30、图标 34×34，
+   主按钮实心 accent，次按钮描边，全部圆角 9、字号 12.5。 */
+@media (max-width: 760px) {
+  html.ios-m body button,
+  html.ios-m body .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 34px;
+    min-height: 34px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+  html.ios-m body button.ghost,
+  html.ios-m body .btn.ghost {
+    background: transparent;
+    border-color: var(--line);
+    color: var(--ink-2);
+  }
+  html.ios-m body button.primary,
+  html.ios-m body .btn.primary {
+    background: var(--accent);
+    border-color: transparent;
+    color: #fff;
+    font-weight: 600;
+  }
+  html.ios-m body button.xs,
+  html.ios-m body .btn.xs {
+    height: 30px;
+    min-height: 30px;
+    padding: 0 10px;
+    font-size: 11.5px;
+  }
+  html.ios-m body button.icon {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    padding: 0;
+  }
+  html.ios-m body button:active {
+    filter: brightness(0.95);
+  }
+  html.ios-m body button[disabled] {
+    opacity: 0.45;
+  }
+  /* 卡片底部的操作按钮：右对齐、间距一致 */
+  html.ios-m body table.as-cards td[data-role='acts'] {
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  html.ios-m body table.as-cards td[data-role='acts'] button {
+    margin: 0 !important;
   }
 }
