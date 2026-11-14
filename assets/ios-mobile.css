@@ -588,3 +588,62 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     height: auto !important;
   }
 }
+
+/* 紧凑行里把单元格内部的块元素压平：事件表每格里有 <div>，
+   display:inline 的 td 遇到块级子元素仍会断行，一条记录会撑到 4 行。 */
+@media (max-width: 760px) {
+  html.ios-m body table.as-cards.compact td > * {
+    display: inline !important;
+    margin: 0 3px 0 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  html.ios-m body table.as-cards.compact td > *[class*='pill'],
+  html.ios-m body table.as-cards.compact td > *[class*='tag'] {
+    display: inline-block !important;
+  }
+  html.ios-m body table.as-cards.compact td br {
+    display: none !important;
+  }
+  html.ios-m body table.as-cards.compact td[data-role='title'] {
+    font-size: 12.5px !important;
+  }
+
+  /* 模型与档位的筛选条：5 个下拉原本摊成 5 行。
+     改成「搜索 / 四个筛选 / 排序+计数+重置」三行。 */
+  html.ios-m body .fbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  html.ios-m body .fbar > input {
+    flex: 1 1 100%;
+    order: 0;
+  }
+  html.ios-m body .fbar > select {
+    flex: 0 0 calc(25% - 6px);
+    min-width: 0;
+    order: 1;
+    font-size: 12.5px;
+    padding-left: 8px !important;
+    padding-right: 4px !important;
+  }
+  html.ios-m body .fbar > select:nth-of-type(5) {
+    flex: 1 1 0;
+    order: 3;
+  }
+  html.ios-m body .fbar > span.grow {
+    display: none;
+  }
+  html.ios-m body .fbar > span.note {
+    order: 3;
+    flex: 0 0 auto;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+  html.ios-m body .fbar > button {
+    order: 4;
+    flex: 0 0 auto;
+  }
+}

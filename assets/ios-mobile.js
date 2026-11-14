@@ -64,6 +64,7 @@
         }
         delete row.dataset.empty;
         var titleTaken = false;
+        var kept = 0;
         for (var c = 0; c < tds.length; c++) {
           var td = tds[c];
           var role;
@@ -81,7 +82,10 @@
           if (role === 'field') {
             td.dataset.label = labels[c] || '';
             if (compact) {
-              td.dataset.prio = KEEP.test(td.dataset.label) ? 'keep' : 'more';
+              /* 一行只保留两个关键字段，多了就压成三行以上、页面立刻变长 */
+              var keep = KEEP.test(td.dataset.label) && kept < 2;
+              td.dataset.prio = keep ? 'keep' : 'more';
+              if (keep) kept++;
             } else if (td.dataset.prio) {
               delete td.dataset.prio;
             }
