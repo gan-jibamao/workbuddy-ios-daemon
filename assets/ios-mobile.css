@@ -984,3 +984,70 @@ html.ios-m body table.as-cards.dense td[data-role='title'] {
     gap: 8px;
   }
 }
+
+/* ── 账号池工具条与卡片字段（用户圈出的两处） ── */
+@media (max-width: 760px) {
+  /* 卡片里同一格的多段值（手机号 + uid、用量 + 速度）改竖排，
+     原来它们挤在一行，视觉上就是「文字重贴」 */
+  html.ios-m body table.as-cards td > *:not(.pill):not(.tag):not(button) {
+    display: block !important;
+  }
+  html.ios-m body table.as-cards td > * + *:not(.pill):not(.tag) {
+    margin-top: 2px;
+  }
+
+  /* 账号池工具条：147 -> 89，两行 */
+  html.ios-m body #view-accounts .box > header {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px !important;
+    padding: 8px 12px !important;
+  }
+  html.ios-m body #view-accounts .box > header h3 {
+    flex: 0 0 auto;
+    margin: 0 2px 0 0;
+    font-size: 14px !important;
+  }
+  html.ios-m body #view-accounts .box > header .vtabs {
+    order: 1;
+    flex: 1 1 auto;
+    overflow-x: auto;
+  }
+  html.ios-m body #view-accounts .box > header .vtabs button {
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 8px !important;
+    font-size: 11.5px !important;
+  }
+  html.ios-m body #view-accounts .box > header .grow,
+  html.ios-m body #view-accounts .box > header .note {
+    display: none !important;
+  }
+  html.ios-m body #view-accounts .box > header button:nth-of-type(1) {
+    order: 2;
+    flex: 0 0 auto;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 7px !important;
+    font-size: 11.5px !important;
+  }
+  html.ios-m body #view-accounts .box > header select {
+    order: 3;
+    flex: 1 1 70px;
+    min-width: 0;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 4px 0 8px !important;
+    font-size: 12px !important;
+  }
+  /* 批量操作按钮：一行排开，字号收到 11px */
+  html.ios-m body #view-accounts .box > header button:nth-of-type(n + 2) {
+    order: 4;
+    flex: 0 0 auto;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 6px !important;
+    font-size: 11px !important;
+  }
+}
