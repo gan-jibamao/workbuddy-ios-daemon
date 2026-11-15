@@ -1,0 +1,55 @@
+--- a/internal/panel/panel.go
++++ b/internal/panel/panel.go
+@@ -98,6 +98,9 @@
+ type Panel struct {
+ 	proxyAccountMu sync.Mutex
+ 	cfg            Config
++	// pollSec 面板自动刷新间隔（秒）。cfg.PollIntervalSec 只在 New 时拷一次，
++	// 而 /panel/api/overview 被前端轮询并发读取 —— 保存后要热生效，用 atomic。
++	pollSec atomic.Int64
+ 	mux            *http.ServeMux
+ 	started        time.Time
+ 	logs           *Ring
+@@ -246,6 +249,7 @@
+ 		reloadDeleteConfirm: 2,
+ 		reloadMissing:       map[string]int{},
+ 	}
++	p.pollSec.Store(int64(cfg.PollIntervalSec))
+ 	p.routes()
+ 	return p
+ }
+@@ -253,6 +257,11 @@
+ // Logs 返回日志环形缓冲（main 经 MultiWriter 镜像 log 与 chat 表格日志进来）。
+ func (p *Panel) Logs() *Ring { return p.logs }
+ 
++// SetPollIntervalSec 热生效面板自动刷新间隔（秒）：保存配置后由 main 调用，
++// 下一轮 /panel/api/overview 前端即按新间隔重建定时器。
++// 0 = 前端缺省 5s；负数 = 关闭自动刷新。
++func (p *Panel) SetPollIntervalSec(sec int) { p.pollSec.Store(int64(sec)) }
++
+ func (p *Panel) routes() {
+ 	p.mux.HandleFunc("GET /panel/{$}", p.index)
+ 	p.mux.HandleFunc("GET /panel/theme.js", p.themeScript)
+@@ -394,7 +403,7 @@
+ 	}
+ 	writeJSON(w, http.StatusOK, map[string]any{
+ 		"version":           p.cfg.Version,
+-		"poll_interval_sec": p.cfg.PollIntervalSec,
++		"poll_interval_sec": int(p.pollSec.Load()),
+ 		"update":            p.updateSnapshot(),
+ 		"uptime_sec":        int(time.Since(p.started).Seconds()),
+ 		"auth_required":     p.apiKey() != "",
+--- a/cmd/server/main.go
++++ b/cmd/server/main.go
+@@ -1021,6 +1021,11 @@
+ 	p.SetAccountPriority(newCfg.Pool.AccountPriority)             // 账号优先级/占比热生效（issue #62）
+ 	p.SetAccountShare(newCfg.Pool.AccountShare)
+ 	p.SetStrategy(newCfg.Pool.SelectionStrategy) // 选号策略热生效
++	// 面板自动刷新间隔热生效：overview 读的是 Panel 里的 atomic 值，
++	// 不调用这一行则保存成功、内存不变，前端永远按 5 秒刷新（面板「保存不了」）。
++	if pn != nil {
++		pn.SetPollIntervalSec(newCfg.Panel.PollIntervalSec)
++	}
+ 	sch.Reconfigure(scheduler.ScheduleParams{
+ 		CheckinHours:   newCfg.Schedule.CheckinHours,
+ 		TravelHours:    newCfg.Schedule.TravelHours,
