@@ -25,15 +25,14 @@ env:
   # 历史：11-12 1c007bb → 11-15 89cdfe7（69）→ 11-16 06a401e（19）→ 11-18 733942a（64）。
   # 本地长期补丁：0013 = 面板自动刷新间隔热生效（上游至今没修：该字段只在
   # panel.New 拷一次，保存成功但 overview 永远回旧值，前端永远 5 秒）。
-  # 2026-11-26：e2d0eb6 → e39c252。14 提交 / 35 文件（前端 app.js +72 -10）。要点：
-  #   · 错误汇总可标为已读；账号池可批量导出（#289 附近）
-  #   · 嵌入 11353（TEI 413）归请求级、错误码改 input_too_large，按 cool_kind 判熔断（#290）
-  #   · tool 配对吸收 hub 三修：相邻批合并、孤儿不遮挡、重复结果去重
-  #   · ::browser-complete 控制标记不当正文透传，改发一次续写（#285）
-  #   · 视频提交阶段 4xx 不罚号不换号；MCP generate_video 暴露 reference_* 参数
-  #   · TraeCode 自述句进脱敏表；模型目录降级 WARN 每种只报一次
-  # 12 个补丁在 e39c252 上实测 12/12 干净落地（无 .rej）。
-  UPSTREAM_REF: e39c2528ba2cea8eeb9cedac8caefdd8d9b1b3f5
+  # 2026-11-27：e39c252 → 7e9f53b。9 提交 / 18 文件（前端 app.js +23、index.html +16）。要点：
+  #   · prompt 可选把 system 挪到消息末尾，救回被每轮变 system 打碎的前缀缓存（#293）
+  #   · 积分到期分布每行可展开看每段金额（#294）；模型规则页账号列显示积分余额（#291）
+  #   · 截断上游回执按 rune 边界，不再劈开汉字（server/pool/scheduler 三处）
+  #   · 8 MiB 请求体 413 错误码改 payload_too_large；embeddings 单条上限进 README（#290）
+  #   · 数出「缺 calls 包裹的 invoke 块」发生率；zero-tool-calls 收尾日志带 tok/think
+  # 12 个补丁在 7e9f53b 上实测 12/12 干净落地（无 .rej）。
+  UPSTREAM_REF: 7e9f53b4ec4a42899d5cfc01bd8bd7b09fa1565c
 
 jobs:
   build:
